@@ -7,7 +7,7 @@
 #include <SDL2/SDL.h>
 
 
-const int     X0            = -0.5;
+const int     X0            = 0.5;
 const int     WIDTH         = 600;
 const int     HEIGHT        = 600;
 const int     NUM_OF_ITER   = 700;
@@ -116,7 +116,7 @@ int main()
         data << " 255 215 0 ";
       else if(lyap_arr[i][j] >= -1 && lyap_arr[i][j] < -0.5)
         data << " 255 228 54 ";
-      else if(lyap_arr[i][j] >=0.5 && lyap_arr[i][j] < 0)
+      else if(lyap_arr[i][j] >= -0.5 && lyap_arr[i][j] < 0)
         data << " 255 255 0";
       else
         data << " 0 0 255";
