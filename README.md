@@ -1,0 +1,1 @@
+Project on theoretical mechanics, Lyapunov's theory of stability.
