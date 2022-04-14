@@ -1,52 +1,41 @@
-#include <iostream>
 #include "../include/window.hh"
 
-WindowManager::WindowManager(int w, int h): width(w), height(h), quit(false), 
-                                            pixels(nullptr), window(nullptr), 
-                                            renderer(nullptr), texture(nullptr)
+WindowManager::WindowManager(int w, int h): m_width(w), m_height(h), m_quit(false), 
+                                            m_window(nullptr), 
+                                            m_renderer(nullptr), m_texture(nullptr)
 {
   SDL_Init(SDL_INIT_VIDEO);
-  pixels = new uint32_t[width * height];
-  window = SDL_CreateWindow("Lyapunov fractals", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
-  renderer = SDL_CreateRenderer(window, -1, 0);
-  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
-  memset(pixels, 255, width * height * sizeof(uint32_t));
+  m_window = SDL_CreateWindow("Lyapunov Fractals", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_width, m_height, 0);
+  m_renderer = SDL_CreateRenderer(m_window, -1, 0);
+  m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, m_width, m_height);
 }
 
-void WindowManager::update()
+void WindowManager::update(vector<uint32_t> pixels)
 {
-  SDL_UpdateTexture(texture, nullptr, pixels, width * sizeof(uint32_t));
-  SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-  SDL_RenderPresent(renderer);
+  SDL_UpdateTexture(m_texture, nullptr, pixels.data(), m_width * sizeof(uint32_t));
+  SDL_RenderClear(m_renderer);
+  SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
+  SDL_RenderPresent(m_renderer);
 }
 
 void WindowManager::event_loop()
 {
   SDL_Event event;
-  while(!quit)
+  while(!m_quit)
   {
     SDL_WaitEvent(&event);
-    SDL_RenderPresent(renderer);
     switch(event.type)
     {
-      case SDL_QUIT:{ quit = true;
+      case SDL_QUIT:{ m_quit = true;
                       break; }
     }
   }
 }
 
-void WindowManager::set_many_pixels(uint32_t* curr_pixs)
-{
-  for(int i = 0, size = width * height; i < size; ++i)
-  { pixels[i] = curr_pixs[i]; }
-}
-
 WindowManager::~WindowManager()
 {
-  delete[] pixels;
-  SDL_DestroyTexture(texture);
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
+  SDL_DestroyTexture(m_texture);
+  SDL_DestroyRenderer(m_renderer);
+  SDL_DestroyWindow(m_window);
   SDL_Quit();
 }

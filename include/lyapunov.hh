@@ -32,14 +32,17 @@ using std::to_string;
 class Lyapunov
 {
   private:
-    WindowManager window_manager;
-    vector<uint32_t> pixels;
+    WindowManager m_window_manager;
+    vector<uint32_t> m_pixels;
+    string m_sequence;
+    void generate_sequence();
 
   public:
     Lyapunov();
     void set_pixel(int index, unsigned int r, unsigned int g, unsigned int b);
-    void set_many_pixels(vector<uint32_t> pixels);
+    void update_pixels();
     void event_loop();
+    void generate();
 };
 
 #endif // __INCLUDE_LYAPUNOV_HH__

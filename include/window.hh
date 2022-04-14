@@ -3,23 +3,25 @@
 
 #include <SDL2/SDL.h>
 #include <exception>
+#include <iostream>
+#include <vector>
+
+using std::vector;
 
 class WindowManager
 {
   private:
-    int width, height;
-    bool quit;
-    uint32_t* pixels;
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    SDL_Texture* texture;
+    uint m_width, m_height;
+    bool m_quit;
+    SDL_Window* m_window;
+    SDL_Renderer* m_renderer;
+    SDL_Texture* m_texture;
 
   public:
     WindowManager(int width, int height);
     ~WindowManager();
     void event_loop();
-    void set_many_pixels(Uint32* pixels);
-    void update();
+    void update(vector<uint32_t> pixels);
 };
 
 #endif // __SRC_WINDOW_HH__
