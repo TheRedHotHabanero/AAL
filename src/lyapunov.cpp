@@ -142,18 +142,19 @@ void Lyapunov::on_resized(uint new_width, uint new_height)
   SDL_Rect new_pos{ get_texture_position() };
   new_pos.x = (int)((new_width >> 1) - (new_pos.w >> 1));
   new_pos.y = (int)((new_height >> 1) - (new_pos.h >> 1));
+  new_pos.w = new_pos.h = new_width < new_height ? new_width : new_height;
   set_texture_position(new_pos);
 }
 
-void Lyapunov::event_loop()
-{ WindowManager::event_loop();}
+void Lyapunov::start_loop()
+{ event_loop();}
 
 
 int main()
 {
   Lyapunov lyapunov(1280, 720, 720, 720);
   lyapunov.generate();
-  lyapunov.event_loop();
+  lyapunov.start_loop();
 
   return 0;
 }

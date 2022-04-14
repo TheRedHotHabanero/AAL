@@ -22,8 +22,8 @@ class WindowManager
   public:
     WindowManager(uint w, uint h);
     ~WindowManager();
-    virtual void event_loop();
-    virtual void on_resized(uint new_width, uint new_height);
+    void event_loop();
+    virtual void on_resized(uint new_width, uint new_height) = 0;
     void update(vector<uint32_t>& pixels);
     void init_render(SDL_Rect texture_position);
     void set_texture_position(SDL_Rect texture_position);

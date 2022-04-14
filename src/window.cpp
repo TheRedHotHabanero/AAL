@@ -6,12 +6,12 @@ WindowManager::WindowManager(uint w, uint h): m_window_position(), m_quit(false)
 {
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
     throw runtime_error(SDL_GetError());
-  m_window = SDL_CreateWindow("Lyapunov Fractals", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_RESIZABLE);
+  m_window = SDL_CreateWindow("Lyapunov Fractals", uint SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (int)w, (int)h, SDL_WINDOW_RESIZABLE);
 
   if (m_window == nullptr)
     throw runtime_error(SDL_GetError());
-  m_window_position.w = w;
-  m_window_position.h = h;
+  m_window_position.w = (int)w;
+  m_window_position.h = (int)h;
 }
 
 void WindowManager::init_render(SDL_Rect texture_position)
@@ -31,7 +31,7 @@ SDL_Rect& WindowManager::get_texture_position()
 void WindowManager::update(vector<uint32_t>& pixels)
 {
   SDL_Rect position = get_texture_position();
-  SDL_UpdateTexture(m_texture, nullptr, pixels.data(), position.h * sizeof(uint32_t));
+  SDL_UpdateTexture(m_texture, nullptr, pixels.data(), (int)(position.h * sizeof(uint32_t)));
   SDL_RenderClear(m_renderer);
   SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
   SDL_RenderPresent(m_renderer);
@@ -45,8 +45,6 @@ void WindowManager::set_texture_position(SDL_Rect texture_position)
   SDL_RenderPresent(m_renderer);
   m_texture_position = texture_position;
 }
-
-void WindowManager::on_resized(uint new_width, uint new_height) {}
 
 void WindowManager::event_loop()
 {

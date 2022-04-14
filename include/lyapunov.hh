@@ -39,7 +39,7 @@ class Lyapunov: WindowManager
               uint lyap_width, uint lyap_height);
     void update_pixels();
     void generate();
-    void event_loop() override;
+    void start_loop();
     void on_resized(uint new_width, uint new_height) override;
     void set_pixel_RGB(uint index, uint r, uint g, uint b);
     void set_pixel_HSV(uint index, float h, float s, float v);
