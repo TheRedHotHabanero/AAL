@@ -1,32 +1,22 @@
-#include <iostream>
-#include <cmath>
-#include <ctime>
-#include <cstdlib>
-#include <string>
-#include <fstream>
-#include <SDL2/SDL.h>
-
-#include "../include/window.hh"
-
-const int     X0            = 0.5;
-const int     WIDTH         = 700;
-const int     HEIGHT        = 700;
-const int     NUM_OF_ITER   = 700;
-const double  INF_A         = 0.0;
-const double  SUP_A         = 4.0;
-const double  INF_B         = 0.0;
-const double  SUP_B         = 4.0;
-
-using std::cin;
-using std::cout;
-using std::endl;
-using std::string;
-using std::ofstream;
-using std::to_string;
+#include "../include/lyapunov.hh"
 
 // color is yellow is exp() < 0
 // color is blue is exp() > 0
 // сalculation of the Lyapunov exponent through https://www.youtube.com/watch?v=8xZyA09zRXY
+
+void Lyapunov::set_pixel(int index, unsigned int r, unsigned int g, unsigned int b)
+{ pixels[index] = (255 << 24) + (r << 16) + (g << 8) + b; }
+
+void Lyapunov::set_many_pixels(vector<uint32_t> pixels)
+{
+  window_manager.set_many_pixels(pixels.data());
+  window_manager.update();
+}
+
+Lyapunov::Lyapunov() : window_manager(HEIGHT, WIDTH), pixels(){}
+
+void Lyapunov::event_loop()
+{ window_manager.event_loop(); }
 
 // scale spacing between each a/b for x/y
 double scaleA()
@@ -65,18 +55,9 @@ uint32_t color_pixel(int red, int green, int blue)
 }
 
 // creation of a 2D array in order to retrieve an array containing the exponents
-uint32_t* exposant(string seq)
+vector<uint32_t> exposant(string seq)
 {
-  uint32_t* pixels = new uint32_t[WIDTH * HEIGHT];
-  ofstream data("data.ppm");
-  data << "P3";
-  data << endl;
-  data << to_string(WIDTH);
-  data << " ";
-  data << to_string(HEIGHT);
-  data << endl;
-  data << "255";
-  data << endl;
+  vector<uint32_t> pixels(WIDTH * HEIGHT);
 
   int green_layer = 0;
   int red_layer   = 0;
@@ -108,8 +89,8 @@ uint32_t* exposant(string seq)
 
       for(unsigned long int i = 0; i < NUM_OF_ITER; ++i)
       {
-	      xn = nextXN(xn,rn);
 	      rn = rN(seq[i], a, b);
+        xn = nextXN(xn,rn);
 	      exp_lyap += log2(fabs(rn * (1 - 2 * xn))) ;
       }
       exp_lyap = exp_lyap / NUM_OF_ITER;
@@ -119,6 +100,7 @@ uint32_t* exposant(string seq)
       green_layer = ( (int)210 + exp_lyap * 50 >= 0 ) ? (int) 210 + exp_lyap * 50 : 0 ;
       red_layer = ( (int)255 + exp_lyap * 52 >= 100 ) ? (int) 255 + exp_lyap * 52 : 100 ;
       blue_layer = ( (int)255 - exp_lyap * 200 >= 0) ? (int) 255 - exp_lyap * 200 : 0 ;
+
       if(exp_arr[x][y] < -6)
         pixels[index] = color_pixel(0, 0, 0);
       else if (exp_arr[x][y] <= 0)
@@ -128,9 +110,7 @@ uint32_t* exposant(string seq)
       else if (exp_arr[x][y] >= 1)
         pixels[index] = color_pixel(0, 0, 0);
     }
-    data << endl;
   }
-  data.close();
   return pixels;
 }
 
@@ -138,14 +118,14 @@ int main()
 {
   cout << "==========     Введите последовательность A-B     ==========\n";
   string seq;
-  cin >> seq;
   seq = "BA";
   seq = ab(seq);
-  WindowManager manager(WIDTH, HEIGHT);
-  uint32_t* exp_arr = exposant(seq);
+  cin >> seq;
+  Lyapunov lyapunov;
+
+  vector<uint32_t> exp_arr = exposant(seq);
   cout << "==========     Генерация завершена     ==========\n";
-  manager.set_pixels(exp_arr);
-  manager.update();
-  manager.event_loop();
+  lyapunov.set_many_pixels(exp_arr);
+  lyapunov.event_loop();
   return 0;
 }

@@ -18,7 +18,7 @@ class WindowManager
     WindowManager(int width, int height);
     ~WindowManager();
     void event_loop();
-    void set_pixels(Uint32* pixels);
+    void set_many_pixels(Uint32* pixels);
     void update();
 };
 
