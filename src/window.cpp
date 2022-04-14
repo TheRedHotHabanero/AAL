@@ -7,7 +7,7 @@ WindowManager::WindowManager(int w, int h): width(w), height(h), quit(false),
 {
   SDL_Init(SDL_INIT_VIDEO);
   pixels = new Uint32[width * height];
-  window = SDL_CreateWindow("SDL2 Pixel Drawing", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
+  window = SDL_CreateWindow("Lyapunov fractals", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
   renderer = SDL_CreateRenderer(window, -1, 0);
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
   memset(pixels, 255, width * height * sizeof(Uint32));

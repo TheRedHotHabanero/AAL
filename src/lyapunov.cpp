@@ -58,6 +58,12 @@ double nextXN(double xn, double j)
 double rN(char current_char, double a, double b)
 { return ((current_char == 'A') ? a : b); }
 
+uint32_t color_pixel(int red, int green, int blue)
+{
+  uint32_t pixel =+ (255 << 24) + (red << 16) + (green << 8) + (blue << 0);
+  return pixel;
+}
+
 // creation of a 2D array in order to retrieve an array containing the exponents
 uint32_t* exposant(string seq)
 {
@@ -72,11 +78,16 @@ uint32_t* exposant(string seq)
   data << "255";
   data << endl;
 
+  int green_layer = 0;
+  int red_layer   = 0;
+  int blue_layer  = 0;
+
   double **exp_arr = new double *[WIDTH];
   for (int i = 0; i < WIDTH; ++i)
     exp_arr[i] = new double[HEIGHT];
 
-  double a, b;
+  double a;
+  double b;
   double exp_lyap;
   static double scale_a = scaleA();
   static double scale_b = scaleB();
@@ -87,6 +98,7 @@ uint32_t* exposant(string seq)
     cout << (float)x / WIDTH * 100 << "%" << endl;
     for(int y = 0; y < HEIGHT; ++y)
     {
+      int index = y * WIDTH + x;
       a = decide_a_or_b(scale_a, x);
       b = decide_a_or_b(scale_b, y);
       exp_lyap = 0;
@@ -104,56 +116,19 @@ uint32_t* exposant(string seq)
       exp_arr[x][y] = exp_lyap;
 
       //LAMBDA NEGATIF
-
-      if(exp_arr[x][y] < -4)
-        //data << " 100 45 0 ";
-        pixels[y * WIDTH + x] = (100 << 16) + (45 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -4 && exp_arr[x][y] < -3.7)
-        //data << " 112 62 0 ";
-        pixels[y * WIDTH + x] = (112 << 16) + (62 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -3.7 && exp_arr[x][y] < -3.4)
-        //data << " 124 79 0 ";
-        pixels[y * WIDTH + x] = (124 << 16) + (79 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -3.4 && exp_arr[x][y] < -3.1)
-        //data << "  136 96 0 ";
-        pixels[y * WIDTH + x] = (136 << 16) + (96 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -3.1 && exp_arr[x][y] < -2.9)
-        //data << " 148 113 0 ";
-        pixels[y * WIDTH + x] = (148 << 16) + (113 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -2.9 && exp_arr[x][y] < -2.6)
-        //data << " 160 130 0 ";
-        pixels[y * WIDTH + x] = (160 << 16) + (130 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -2.6 && exp_arr[x][y] < -2.3)
-        //data << " 172 147 0 ";
-        pixels[y * WIDTH + x] = (172 << 16) + (147 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -2.3 && exp_arr[x][y] < -2)
-        //data << " 184 164 0 ";
-        pixels[y * WIDTH + x] = (184 << 16) + (164 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -2 && exp_arr[x][y] < -1.7)
-        //data << " 196 181 0 ";
-        pixels[y * WIDTH + x] = (196 << 16) + (181 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -1.7 && exp_arr[x][y] < -1.4)
-        //data << " 208 198 0 ";
-        pixels[y * WIDTH + x] = (208 << 16) + (198 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -1.4 && exp_arr[x][y] < -1.1)
-        //data << " 220 215 0 ";
-        pixels[y * WIDTH + x] = (220 << 16) + (215 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -1.1 && exp_arr[x][y] < -0.8)
-        //data << " 232 232 0 ";
-        pixels[y * WIDTH + x] = (232 << 16) + (232 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -0.5 && exp_arr[x][y] < -0.2)
-        //data << " 244 249 0 ";
-        pixels[y * WIDTH + x] = (244 << 16) + (249 << 8) + (0 << 0) + (255 << 24);
-      else if(exp_arr[x][y] >= -0.2 && exp_arr[x][y] < 0)
-        //data << " 255 255 0 ";
-        pixels[y * WIDTH + x] = (255 << 16) + (255 << 8) + (0 << 0) + (255 << 24);
-
-      // LAMBDA POSITIF
-      else
-        //data << " 0 0 139 ";
-        pixels[y * WIDTH + x] = (0 << 16) + (0 << 8) + (139 << 0) + (255 << 24);
-      data << endl;
+      green_layer = ( (int)210 + exp_lyap * 50 >= 0 ) ? (int) 210 + exp_lyap * 50 : 0 ;
+      red_layer = ( (int)255 + exp_lyap * 52 >= 100 ) ? (int) 255 + exp_lyap * 52 : 100 ;
+      blue_layer = ( (int)255 - exp_lyap * 200 >= 0) ? (int) 255 - exp_lyap * 200 : 0 ;
+      if(exp_arr[x][y] < -6)
+        pixels[index] = color_pixel(0, 0, 0);
+      else if (exp_arr[x][y] <= 0)
+        pixels[index] = color_pixel(0, green_layer, 0);
+      else if (exp_arr[x][y] > 0)
+        pixels[index] = color_pixel(0, 0, blue_layer);
+      else if (exp_arr[x][y] >= 1)
+        pixels[index] = color_pixel(0, 0, 0);
     }
+    data << endl;
   }
   data.close();
   return pixels;
@@ -164,6 +139,7 @@ int main()
   cout << "==========     Введите последовательность A-B     ==========\n";
   string seq;
   cin >> seq;
+  seq = "BA";
   seq = ab(seq);
   WindowManager manager(WIDTH, HEIGHT);
   uint32_t* exp_arr = exposant(seq);
