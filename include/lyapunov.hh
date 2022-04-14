@@ -13,9 +13,9 @@
 #include "../include/window.hh"
 
 const int     X0            = 0.5;
-const int     WIDTH         = 700;
-const int     HEIGHT        = 700;
-const int     NUM_OF_ITER   = 700;
+const int     WIDTH         = 100;
+const int     HEIGHT        = 100;
+const int     NUM_OF_ITER   = 100;
 const double  INF_A         = 0.0;
 const double  SUP_A         = 4.0;
 const double  INF_B         = 0.0;
@@ -39,7 +39,7 @@ class Lyapunov
 
   public:
     Lyapunov();
-    void set_pixel(int index, unsigned int r, unsigned int g, unsigned int b);
+    void set_pixel(uint index, unsigned int r, unsigned int g, unsigned int b);
     void update_pixels();
     void event_loop();
     void generate();

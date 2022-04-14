@@ -18,10 +18,10 @@ class WindowManager
     SDL_Texture* m_texture;
 
   public:
-    WindowManager(int width, int height);
+    WindowManager(uint w, uint h);
     ~WindowManager();
     void event_loop();
-    void update(vector<uint32_t> pixels);
+    void update(vector<uint32_t>& pixels);
 };
 
 #endif // __SRC_WINDOW_HH__

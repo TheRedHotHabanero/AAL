@@ -4,7 +4,7 @@
 // color is blue is exp() > 0
 // сalculation of the Lyapunov exponent through https://www.youtube.com/watch?v=8xZyA09zRXY
 
-void Lyapunov::set_pixel(int index, unsigned int r, unsigned int g, unsigned int b)
+void Lyapunov::set_pixel(uint index, unsigned int r, unsigned int g, unsigned int b)
 { m_pixels[index] = (r << 16) + (g << 8) + b; }
 
 void Lyapunov::update_pixels()

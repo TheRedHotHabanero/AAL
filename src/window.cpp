@@ -1,8 +1,7 @@
 #include "../include/window.hh"
 
-WindowManager::WindowManager(int w, int h): m_width(w), m_height(h), m_quit(false), 
-                                            m_window(nullptr), 
-                                            m_renderer(nullptr), m_texture(nullptr)
+WindowManager::WindowManager(uint w, uint h): m_width(w), m_height(h), m_quit(false), 
+                                            m_window(nullptr), m_renderer(nullptr), m_texture(nullptr)
 {
   SDL_Init(SDL_INIT_VIDEO);
   m_window = SDL_CreateWindow("Lyapunov Fractals", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_width, m_height, 0);
@@ -10,7 +9,7 @@ WindowManager::WindowManager(int w, int h): m_width(w), m_height(h), m_quit(fals
   m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, m_width, m_height);
 }
 
-void WindowManager::update(vector<uint32_t> pixels)
+void WindowManager::update(vector<uint32_t>& pixels)
 {
   SDL_UpdateTexture(m_texture, nullptr, pixels.data(), m_width * sizeof(uint32_t));
   SDL_RenderClear(m_renderer);
