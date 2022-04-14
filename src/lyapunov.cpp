@@ -94,7 +94,7 @@ void Lyapunov::generate()
   int blue_layer = 0;
 
   uint i, x, y, yPos, index;
-  double a, b, exp_arr, exp_lyap, xn, rn;
+  double a, b, exp_lyap, xn, rn;
 
   double scale_a = ((SUP_A - INF_A) / position.w);
   double scale_b = ((SUP_B - INF_B) / position.h);
@@ -116,20 +116,20 @@ void Lyapunov::generate()
         xn = rn * xn * (1 - xn);
         exp_lyap += log2(fabs(rn * (1 - 2 * xn)));
       }
-      exp_arr = exp_lyap /= NUM_OF_ITER;
+      exp_lyap /= NUM_OF_ITER;
 
       //LAMBDA NEGATIF
       green_layer = ((int) (210 + exp_lyap * 50) >= 0) ? (int) (210 + exp_lyap * 50) : 0;
       red_layer = ((int) (255 + exp_lyap * 52) >= 100) ? (int) (255 + exp_lyap * 52) : 100;
       blue_layer = ((int) (255 - exp_lyap * 200) >= 0) ? (int) (255 - exp_lyap * 200) : 0;
 
-      if(exp_arr < -6)
+      if(exp_lyap < -6)
         set_pixel_RGB(index, 0, 0, 0);
-      else if(exp_arr <= 0)
+      else if(exp_lyap <= 0)
         set_pixel_RGB(index, 0, green_layer, 0);
-      else if(exp_arr > 0)
+      else if(exp_lyap > 0)
         set_pixel_RGB(index, 0, 0, blue_layer);
-      else if(exp_arr >= 1)
+      else if(exp_lyap >= 1)
         set_pixel_RGB(index, 0, 0, 0);
     }
   }
