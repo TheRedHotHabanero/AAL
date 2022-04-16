@@ -12,12 +12,12 @@
 #include <SDL2/SDL_quit.h>
 #include "../include/window.hh"
 
-const int     X0            = 0.5;
-const int     NUM_OF_ITER   = 700;
-const double  INF_A         = 0.0;
-const double  SUP_A         = 4.0;
-const double  INF_B         = 0.0;
-const double  SUP_B         = 4.0;
+constexpr int     X0            = 0.5;
+constexpr int     NUM_OF_ITER   = 700;
+constexpr double  INF_A         = 0.0;
+constexpr double  SUP_A         = 4.0;
+constexpr double  INF_B         = 0.0;
+constexpr double  SUP_B         = 4.0;
 
 using std::cin;
 using std::cout;
@@ -32,10 +32,11 @@ class Lyapunov: WindowManager
   private:
     vector<uint32_t> m_pixels;
     string m_sequence;
+    SDL_Rect m_size;
     void generate_sequence();
 
   public:
-    Lyapunov( uint width, uint height, 
+    Lyapunov( uint window_width, uint window_height, 
               uint lyap_width, uint lyap_height);
     void update_pixels();
     void generate();

@@ -119,9 +119,9 @@ void Lyapunov::generate()
       exp_lyap /= NUM_OF_ITER;
 
       //LAMBDA NEGATIF
-      green_layer = ((int) (210 + exp_lyap * 50) >= 0) ? (int) (210 + exp_lyap * 50) : 0;
-      red_layer = ((int) (255 + exp_lyap * 52) >= 100) ? (int) (255 + exp_lyap * 52) : 100;
-      blue_layer = ((int) (255 - exp_lyap * 200) >= 0) ? (int) (255 - exp_lyap * 200) : 0;
+      green_layer   = ((int) (210 + exp_lyap * 50) >= 0) ? (int) (210 + exp_lyap * 50) : 0;
+      red_layer     = ((int) (255 + exp_lyap * 52) >= 100) ? (int) (255 + exp_lyap * 52) : 100;
+      blue_layer    = ((int) (255 - exp_lyap * 200) >= 0) ? (int) (255 - exp_lyap * 200) : 0;
 
       if(exp_lyap < -6)
         set_pixel_RGB(index, 0, 0, 0);
