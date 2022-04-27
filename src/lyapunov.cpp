@@ -80,16 +80,30 @@ void Lyapunov::generate_sequence()
 {
   cout << "==========     Введите последовательность A-B     ==========\n";
   string sequence;
-  sequence = "BA";
+  sequence = "BBBBBBAAAAAA";
   while(m_sequence.length() < NUM_OF_ITER)
   { m_sequence += sequence; }
 }
 
-void Lyapunov::generate()
+void Lyapunov::generate(float a_start, float b_start, float a_end, float b_end)
 {
   if (m_sequence.empty())
     generate_sequence();
   SDL_Rect position = get_texture_position();
+  if (a_start > a_end)
+  {
+    float change = a_start;
+    a_start = a_end;
+    a_end = change;
+  }
+  if (b_start > b_end)
+  {
+    float change = b_start;
+    b_start = b_end;
+    b_end = change;
+  }
+  uint width = m_size.w;
+  uint height = m_size.h;
   vector<uint32_t> pixels(m_size.w * m_size.h);
 
   int green_layer = 0;
@@ -99,17 +113,17 @@ void Lyapunov::generate()
   uint i, x, y, yPos, index;
   double a, b, exp_lyap, xn, rn;
 
-  double scale_a = ((SUP_A - INF_A) / m_size.w);
-  double scale_b = ((SUP_B - INF_B) / m_size.h);
-  for ( y = 0; y < m_size.h; ++y)
+  double scale_a = ((a_end - a_start) / width);
+  double scale_b = ((b_end - b_start) / height);
+  for ( y = 0; y < height; ++y)
   {
-    cout << y / m_size.w * 100 << "%" << endl;
-    yPos = y * m_size.w;
-    for ( x = 0; x < m_size.w; ++x)
+    cout << y * 100 / width << "%" << endl;
+    yPos = y * width;
+    for ( x = 0; x < width; ++x)
     {
       index = yPos + x;
-      a = x * scale_a;
-      b = y * scale_b;
+      a = a_start + x * scale_a;
+      b = b_start + y * scale_b;
       exp_lyap = 0;
       xn = X0;
 
@@ -155,8 +169,8 @@ void Lyapunov::start_loop()
 
 int main()
 {
-  Lyapunov lyapunov(200, 200, 500, 500);
-  lyapunov.generate();
+  Lyapunov lyapunov(1280, 720, 1000, 1000);
+  lyapunov.generate(3.4, 2.5, 4.0, 3.4);
   lyapunov.start_loop();
 
   return 0;

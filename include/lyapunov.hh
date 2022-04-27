@@ -14,10 +14,6 @@
 
 constexpr int     X0            = 0.5;
 constexpr int     NUM_OF_ITER   = 700;
-constexpr double  INF_A         = 0.0;
-constexpr double  SUP_A         = 4.0;
-constexpr double  INF_B         = 0.0;
-constexpr double  SUP_B         = 4.0;
 
 using std::cin;
 using std::cout;
@@ -39,7 +35,7 @@ class Lyapunov: WindowManager
     Lyapunov( uint window_width, uint window_height, 
               uint lyap_width, uint lyap_height);
     void update_pixels();
-    void generate();
+    void generate(float a_start, float a_end, float b_start, float b_end);
     void start_loop();
     void on_resized(uint new_width, uint new_height) override;
     void set_pixel_RGB(uint index, uint r, uint g, uint b);
