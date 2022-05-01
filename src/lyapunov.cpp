@@ -19,6 +19,17 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
   init_render(m_size, texture_position);
 }
 
+array<float, 2> Lyapunov::get_coord(int x, int y)
+{
+  array<float, 2> coord{};
+  SDL_Rect texture_position = get_texture_position();
+  coord[0] = (float)(x < texture_position.x ? 0 : x > texture_position.x + texture_position.w ?
+              texture_position.w : x - texture_position.x) / (float) texture_position.w * (m_a_end - m_a_start) + m_a_start;
+  coord[1] = (float) (y < texture_position.y ? 0 : y > texture_position.y + texture_position.h ?
+              texture_position.h : y - texture_position.y) / (float) texture_position.h * (m_b_end - m_b_start) + m_b_start;
+  return coord;
+}
+
 void Lyapunov::set_pixel_RGB(uint index, uint r, uint g, uint b)
 { m_pixels[index] = (r << 16u) + (g << 8u) + b; }
 
@@ -74,7 +85,7 @@ void Lyapunov::set_pixel_HSV(uint index, float h, float s, float v)
 }
 
 void Lyapunov::update_pixels()
-{ update(m_pixels); }
+{ update_texture(m_pixels); }
 
 void Lyapunov::generate_sequence()
 {
@@ -87,6 +98,13 @@ void Lyapunov::generate_sequence()
 
 void Lyapunov::generate(float a_start, float b_start, float a_end, float b_end)
 {
+  if (a_start < 0 || a_end > 4 || b_start < 0 || b_end > 4)
+    throw domain_error("Invalid domain to generate Lyapunov");
+  m_a_start = a_start;
+  m_a_end   = a_end;
+  m_b_start = b_start;
+  m_b_end   = b_end;
+
   if (m_sequence.empty())
     generate_sequence();
   SDL_Rect position = get_texture_position();
@@ -104,7 +122,7 @@ void Lyapunov::generate(float a_start, float b_start, float a_end, float b_end)
   }
   uint width = m_size.w;
   uint height = m_size.h;
-  vector<uint32_t> pixels(m_size.w * m_size.h);
+  //vector<uint32_t> pixels(m_size.w * m_size.h);
 
   int green_layer = 0;
   int red_layer = 0;
@@ -151,6 +169,8 @@ void Lyapunov::generate(float a_start, float b_start, float a_end, float b_end)
     }
   }
   update_pixels();
+  blit_texture();
+  update_screen();
   cout << "==========     Генерация завершена     ==========\n";
 }
 
@@ -161,6 +181,22 @@ void Lyapunov::on_resized(uint new_width, uint new_height)
   new_pos.x = (int)((new_width >> 1u) - ((uint)new_pos.w >> 1));
   new_pos.y = (int)((new_height >> 1u) - ((uint)new_pos.h >> 1));
   set_texture_position(new_pos);
+  update_screen();
+}
+
+void Lyapunov::on_mouse_click(uint x, uint y)
+{
+  array<float, 2> coord_start = get_coord((int)x - 200, (int)y - 200);
+  array<float, 2> coord_end = get_coord((int)x + 200, (int)y + 200);
+  generate(coord_start[0], coord_start[1], coord_end[0], coord_end[1]);
+}
+
+void Lyapunov::on_mouse_move(uint x, uint y)
+{
+  array<float, 2> coord = get_coord((int) x, (int) y);
+  blit_texture();
+  draw_rect((int)x - 200, (int)y - 200, 400, 400);
+  update_screen();
 }
 
 void Lyapunov::start_loop()
@@ -169,7 +205,7 @@ void Lyapunov::start_loop()
 
 int main()
 {
-  Lyapunov lyapunov(1280, 720, 1000, 1000);
+  Lyapunov lyapunov(1280, 720, 720, 720);
   lyapunov.generate(3.4, 2.5, 4.0, 3.4);
   lyapunov.start_loop();
 
