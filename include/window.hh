@@ -5,6 +5,7 @@
 #include <exception>
 #include <iostream>
 #include <vector>
+#include "time.hh"
 
 using std::vector;
 using std::runtime_error;
@@ -14,6 +15,7 @@ using std::endl;
 
 class WindowManager
 {
+
   private:
     SDL_Rect m_window_position;
     bool m_quit;
@@ -36,6 +38,9 @@ class WindowManager
     virtual void on_resized(uint new_width, uint new_height) = 0;
     virtual void on_mouse_click(uint x, uint y) = 0;
     virtual void on_mouse_move(uint x, uint y) = 0;
+    virtual void on_mouse_wheel() = 0;
+    virtual void on_keyboard(int c) = 0;
+    virtual void on_tick() = 0;
     void event_loop();
     const SDL_Rect& get_texture_position() const;
     void set_texture_position(SDL_Rect texture_position);

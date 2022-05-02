@@ -13,7 +13,8 @@
 #include <thread>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_quit.h>
-#include "../include/window.hh"
+#include "window.hh"
+#include "time.hh"
 
 constexpr int X0            = 0.5;
 constexpr int NUM_OF_ITER   = 700;
@@ -32,27 +33,34 @@ using std::domain_error;
 class Lyapunov: WindowManager
 {
   private:
-    vector<uint32_t> m_pixels;
+    vector<double> m_exponents;
     string m_sequence;
     SDL_Rect m_size;
-    float m_a_start{0};
-    float m_b_start{0};
-    float m_a_end{4};
-    float m_b_end{4};
+    double m_a_start{0};
+    double m_b_start{0};
+    double m_a_end{4};
+    double m_b_end{4};
+    int precision{100};
+    long m_last_move{get_current_time()};
+    int current_color{0};
+    bool stop_color{false};
     void generate_sequence();
 
   public:
     Lyapunov( uint window_width, uint window_height, 
               uint lyap_width, uint lyap_height);
-    void generate(float a_start = 0, float b_start = 0, float a_end = 4, float b_end = 4);
+    void generate(double a_start = 0, double b_start = 0, double a_end = 4, double b_end = 4);
     void generate_part(uint x_start, uint y_start, uint x_end, uint y_end);
-    array<float, 2> get_coord(int x, int y);
+    array<double, 2> get_coord(int x, int y);
     void on_resized(uint new_width, uint new_height) override;
-    void set_pixel_RGB(uint index, uint r, uint g, uint b);
-    void set_pixel_HSV(uint index, float h, float s, float v);
+    void set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b);
+    void set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double s, double v);
     void update_pixels();
     void on_mouse_click(uint x, uint y) override;
     void on_mouse_move(uint x, uint y) override;
+    void on_mouse_wheel() override;
+    void on_keyboard(int c) override;
+    void on_tick() override;
     void start_loop();
 };
 
