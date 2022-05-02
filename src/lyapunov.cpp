@@ -89,9 +89,9 @@ void Lyapunov::update_pixels()
 
 void Lyapunov::generate_sequence()
 {
-  cout << "==========     Введите последовательность A-B     ==========\n";
+  //cout << "==========     Введите последовательность A-B     ==========\n";
   string sequence;
-  sequence = "BBBBBBAAAAAA";
+  sequence = "BAAB";
   while(m_sequence.length() < NUM_OF_ITER)
   { m_sequence += sequence; }
 }
