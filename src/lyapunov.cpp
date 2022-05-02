@@ -120,9 +120,25 @@ void Lyapunov::generate(float a_start, float b_start, float a_end, float b_end)
     b_start = b_end;
     b_end = change;
   }
+
+  int nb_thread = thread::hardware_concurrency();
+  vector<thread> threads(nb_thread);
+  for (int i = 0; i < nb_thread; ++i)
+    threads[i] = thread(&Lyapunov::generate_part, this, 0u, (uint)(i * m_size.w / nb_thread), 
+                       (uint)m_size.w, (uint)(i + 1) * m_size.h / nb_thread);
+  for (auto& th: threads)
+    th.join();
+
+  update_pixels();
+  blit_texture();
+  update_screen();
+}
+
+void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
+{
+
   uint width = m_size.w;
   uint height = m_size.h;
-  //vector<uint32_t> pixels(m_size.w * m_size.h);
 
   int green_layer = 0;
   int red_layer = 0;
@@ -131,17 +147,17 @@ void Lyapunov::generate(float a_start, float b_start, float a_end, float b_end)
   uint i, x, y, yPos, index;
   double a, b, exp_lyap, xn, rn;
 
-  double scale_a = ((a_end - a_start) / width);
-  double scale_b = ((b_end - b_start) / height);
-  for ( y = 0; y < height; ++y)
+  double scale_a = ((m_a_end - m_a_start) / (float)width);
+  double scale_b = ((m_b_end - m_b_start) / (float)height);
+  for ( y = y_start; y < y_end; ++y)
   {
     cout << y * 100 / width << "%" << endl;
     yPos = y * width;
-    for ( x = 0; x < width; ++x)
+    for ( x = x_start; x < x_end; ++x)
     {
       index = yPos + x;
-      a = a_start + x * scale_a;
-      b = b_start + y * scale_b;
+      a = m_a_start + x * scale_a;
+      b = m_b_start + y * scale_b;
       exp_lyap = 0;
       xn = X0;
 
@@ -168,10 +184,6 @@ void Lyapunov::generate(float a_start, float b_start, float a_end, float b_end)
         set_pixel_RGB(index, 0, 0, 0);
     }
   }
-  update_pixels();
-  blit_texture();
-  update_screen();
-  cout << "==========     Генерация завершена     ==========\n";
 }
 
 void Lyapunov::on_resized(uint new_width, uint new_height)
@@ -205,8 +217,8 @@ void Lyapunov::start_loop()
 
 int main()
 {
-  Lyapunov lyapunov(1280, 720, 720, 720);
-  lyapunov.generate(3.4, 2.5, 4.0, 3.4);
+  Lyapunov lyapunov(1400, 1000, 1000, 1000);
+  lyapunov.generate(0, 0, 4.0, 4.0);
   lyapunov.start_loop();
 
   return 0;

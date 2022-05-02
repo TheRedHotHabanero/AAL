@@ -9,17 +9,20 @@
 #include <fstream>
 #include <vector>
 #include <array>
+#include <ctime>
+#include <thread>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_quit.h>
 #include "../include/window.hh"
 
 constexpr int X0            = 0.5;
-constexpr int NUM_OF_ITER   = 100;
+constexpr int NUM_OF_ITER   = 700;
 
 using std::cin;
 using std::cout;
 using std::endl;
 using std::array;
+using std::thread;
 using std::string;
 using std::vector;
 using std::ofstream;
@@ -42,6 +45,7 @@ class Lyapunov: WindowManager
     Lyapunov( uint window_width, uint window_height, 
               uint lyap_width, uint lyap_height);
     void generate(float a_start = 0, float b_start = 0, float a_end = 4, float b_end = 4);
+    void generate_part(uint x_start, uint y_start, uint x_end, uint y_end);
     array<float, 2> get_coord(int x, int y);
     void on_resized(uint new_width, uint new_height) override;
     void set_pixel_RGB(uint index, uint r, uint g, uint b);
