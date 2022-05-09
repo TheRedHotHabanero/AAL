@@ -93,15 +93,15 @@ void Lyapunov::update_pixels()
   for (int i = 0, size = m_size.w * m_size.h; i < size; ++i)
   {
     double exponent = m_exponents[i];
-    int green_layer   = ((int) (210 + exponent * 50) >= 0) ? (int) (210 + exponent * 50) : 0;
-    int red_layer     = ((int) (255 + exponent * 52) >= 100) ? (int) (255 + exponent * 52) : 100;
-    int blue_layer    = ((int) (255 - exponent * 200) >= 0) ? (int) (255 - exponent * 200) : 0;
+    int green   = ((int) (210 + exponent * 50) >= 0) ? (int) (210 + exponent * 50) : 0;
+    int red     = ((int) (255 + exponent * 52) >= 100) ? (int) (255 + exponent * 52) : 100;
+    int blue    = ((int) (255 - exponent * 200) >= 0) ? (int) (255 - exponent * 200) : 0;
     if (exponent < -6)
       set_pixel_RGB(pixels, i, 0, 0, 0);
     else if (exponent <= 0)
-      set_pixel_RGB(pixels, i, 0, green_layer, 0);
+      set_pixel_RGB(pixels, i, 0, green, 0);
     else if (exponent > 0)
-      set_pixel_RGB(pixels, i, 0, 0, blue_layer);
+      set_pixel_RGB(pixels, i, 0, 0, blue);
     else if (exponent >= 1)
       set_pixel_RGB(pixels, i, 0, 0, 0);
   }
@@ -124,20 +124,6 @@ void Lyapunov::generate(Region region)
 
   if (m_sequence.empty())
     generate_sequence();
-  /*
-  if (a_start > a_end)
-  {
-    double change = a_start;
-    a_start = a_end;
-    a_end = change;
-  }
-  if (b_start > b_end)
-  {
-    double change = b_start;
-    b_start = b_end;
-    b_end = change;
-  }
-  */
 
   uint nb_thread = thread::hardware_concurrency();
   vector<thread> threads(nb_thread);
@@ -156,7 +142,6 @@ void Lyapunov::generate(Region region)
 
 void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
 {
-
   uint width = m_size.w;
   uint height = m_size.h;
 
