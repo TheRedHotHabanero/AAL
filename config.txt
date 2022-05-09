@@ -1,6 +1,6 @@
-color_neg_+= 0 0 0
-color_neg_-= 210 62 62
-color_pos_-= 216 209 71
-color_pos_+= 77 216 124
+color_neg_+= 229 29 29
+color_neg_-= 189 151 42
+color_pos_-= 82 254 65
+color_pos_+= 88 68 216
 precision= 100
-sequence= AB
+sequence= ABAB

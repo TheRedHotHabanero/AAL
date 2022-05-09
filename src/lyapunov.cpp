@@ -22,6 +22,9 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
     i++;
   }
 
+  set_color_scale(0, m_color_lyap[1], m_color_lyap[0]); //Neg
+  set_color_scale(3, m_color_lyap[3], m_color_lyap[2]); //Pos
+
   file >> str >> precise;
   m_precision = precise;
   cout << m_precision << endl;
@@ -111,23 +114,37 @@ void Lyapunov::set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double
   }
 }
 
+void Lyapunov::set_color_scale(int tab, uint32_t max, uint32_t min)
+{
+  int curr_max = max;
+  int curr_min = min;
+  for (int i = 2; i > 0; i--)
+  {
+    curr_max = max % 256;
+    curr_min = min % 256;
+    color_scale[tab + i] = curr_max - curr_min;
+    max = (max - curr_max) / 256;
+    min = (max - curr_max) / 256;
+  }
+}
+
 void Lyapunov::update_pixels()
 {
+  cout << "in update Pixels" << endl;
   vector<uint32_t> pixels(m_size.w * m_size.h);
   for (int i = 0, size = m_size.w * m_size.h; i < size; ++i)
   {
     double exponent = m_exponents[i];
-    int green   = ((int) (210 + exponent * 50) >= 0) ? (int) (210 + exponent * 50) : 0;
-    //int red     = ((int) (255 + exponent * 52) >= 100) ? (int) (255 + exponent * 52) : 100;
-    int blue    = ((int) (255 - exponent * 200) >= 0) ? (int) (255 - exponent * 200) : 0;
-    if (exponent < -6)
-      set_pixel_RGB(pixels, i, 0, 0, 0);
-    else if (exponent <= 0)
-      set_pixel_RGB(pixels, i, 0, green, 0);
-    else if (exponent > 0)
-      set_pixel_RGB(pixels, i, 0, 0, blue);
-    else if (exponent >= 1)
-      set_pixel_RGB(pixels, i, 0, 0, 0);
+    int red;
+    int green;
+    int blue;
+    int choix_tab = 0;
+    if (exponent > 0)
+      choix_tab = 0;
+    red   = (int)(color_scale[choix_tab]      * exponent) + m_color_lyap[1];
+    green = (int)(color_scale[choix_tab + 1]  * exponent) + m_color_lyap[1];
+    blue  = (int)(color_scale[choix_tab + 2]  * exponent) + m_color_lyap[1];
+    set_pixel_RGB(pixels, i, red, green, blue);
   }
   update_texture(pixels);
 }
@@ -143,10 +160,10 @@ void Lyapunov::generate_sequence()
     cout << m_sequence.length() << endl;
     for(uint i = 0; i < m_sequence.length(); ++i)
     {
-      cout << m_sequence.at(i) << endl;
-      if (m_sequence.at(i) != 'A' || m_sequence.at(i) != 'B')
+      cout << m_sequence.at(i) << " ici " << endl;
+      if (not(m_sequence.at(i) != 'A' || m_sequence.at(i) != 'B'))
       {
-        cout << "An error in the construction of the sequence has been detected. Sequence must contains only A and B. Default Sequence : AB" << std::endl;
+        cout << m_sequence << m_sequence.length() << "An error in the construction of the sequence has been detected. Sequence must contains only A and B. Default Sequence : AB" << endl;
         error = true;
         break;
       }

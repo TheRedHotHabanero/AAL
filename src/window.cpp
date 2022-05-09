@@ -60,11 +60,6 @@ void WindowManager::render(SDL_Rect* clip,double angle, SDL_Point* center, SDL_R
   SDL_RenderClear(m_renderer);
   SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 
-  if (clip!= NULL)
-  {
-    render_quad.w = clip->w;
-    render_quad.h = clip->h;
-  }
   SDL_RenderCopyEx(m_renderer, m_texture, &m_texture_original_size, &render_quad, angle, center, flip);
 }
 
