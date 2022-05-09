@@ -142,10 +142,11 @@ void Lyapunov::generate(Region region)
 
 void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
 {
-  uint width = m_size.w;
+  uint width  = m_size.w;
   uint height = m_size.h;
+  uint number_of_products;
 
-  uint i, x, y, yPos, index;
+  uint i, j, x, y, y_pos, index;
   double a, b, exp_lyap, xn, rn;
 
   double a_start = m_current_region.get_from_x();
@@ -155,20 +156,27 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
   for ( y = y_start; y < y_end; ++y)
   {
     cout << y * 100 / width << "%" << endl;
-    yPos = y * width;
+    y_pos = y * width;
     for ( x = x_start; x < x_end; ++x)
     {
-      index = yPos + x;
+      index = y_pos + x;
       a = a_start + x * scale_a;
       b = b_start + y * scale_b;
       exp_lyap = 0;
       xn = X0;
-
-      for (int i = 0; i < m_precision; ++i)
+      number_of_products = m_precision / 10;
+      vector<double> product(number_of_products);
+      for (i = 0; i < number_of_products; ++i)
       {
-        rn = m_sequence[i] == 'A' ? a : b;
-        xn = rn * xn * (1 - xn);
-        exp_lyap += log2(fabs(rn * (1 - 2 * xn)));
+        product[i] = 1;
+        for (j = i * number_of_products; j < (i + 1) * number_of_products; ++j)
+        {
+          rn = m_sequence[j] == 'A' ? a : b;
+          xn = rn * xn * (1 - xn);
+          product[i] *= fabs(rn * (1 - 2 * xn));
+        }
+        product[i] = log2(product[i]);
+        exp_lyap += product[i];
       }
       m_exponents[index] = exp_lyap / m_precision;
     }
@@ -254,6 +262,19 @@ int main(int argc, char* argv[])
 {
   (void)argc;
   (void)argv;
+  Gtk::Main app(argc, argv);
+  Menu m = Menu();
+  Gtk::Main::run(m);
+  ofstream file ("../include/config.txt");
+
+  if (!file.is_open())
+  {
+    cout << "Error : Can not open file config " << endl;
+    return -1;
+  }
+  m.get_sequence(file);
+  m.get_color(file);
+  m.get_precision(file);
   Lyapunov lyapunov(1400, 1000, 1000, 1000);
   lyapunov.generate();
   lyapunov.start_loop();

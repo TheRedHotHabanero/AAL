@@ -17,6 +17,7 @@
 #include "window.hh"
 #include "time.hh"
 #include "region.hh"
+#include "menu.hh"
 
 constexpr int X0            = 0.5;
 constexpr int NUM_OF_ITER   = 700;
