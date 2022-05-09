@@ -111,7 +111,7 @@ void Lyapunov::update_pixels()
 void Lyapunov::generate_sequence()
 {
   string sequence;
-  sequence = "BBABBABBABBABAABBBBA";
+  sequence = "ABBBA";
   while(m_sequence.length() < m_precision)
   { m_sequence += sequence; }
 }
