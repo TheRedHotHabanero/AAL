@@ -1,6 +1,6 @@
-sequence = AAAAABBB
-color_neg_ += 255 0 0
-color_neg_ -= 0 255 77
-color_pos_ -= 255 15 184
-color_pos_ += 0 217 255
-precision = 456
+color_neg_ += 0 0 0
+color_neg_ -= 0 0 0
+color_pos_ -= 0 0 0
+color_pos_ += 0 0 0
+precision = 100
+sequence = ABAB

@@ -31,6 +31,7 @@ using std::thread;
 using std::string;
 using std::vector;
 using std::ofstream;
+using std::ifstream;
 using std::to_string;
 using std::domain_error;
 
@@ -46,6 +47,7 @@ class Lyapunov: WindowManager
     int m_current_color{0};
     bool m_stop_color{false};
     stack<Region> m_last_position;
+    uint32_t m_color_lyap[4];
     void generate_sequence();
 
   public:

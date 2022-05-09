@@ -38,11 +38,12 @@ class Menu: public Gtk::Window
     void set_color_min_pos_expo();
     void set_color_max_pos_expo();
     string color_to_string(Gdk::RGBA color);
-    void get_sequence(ofstream &file);
-    void get_color(ofstream &file);
-    void get_precision(ofstream &file);
+    void get_sequence(ofstream& file);
+    void get_color(ofstream& file);
+    void get_precision(ofstream& file);
     void text_area();
     void new_precision();
+    int write_file();
 };
 
 #endif // __SRC_MENU_HH__

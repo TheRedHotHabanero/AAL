@@ -116,7 +116,7 @@ void Menu::text_area()
 void Menu::get_sequence(ofstream& file)
 {
   string seq = sequence.get_text();
-  file << "sequence= " +seq << endl;
+  file << "sequence= " + seq;
 }
 
 void Menu::new_precision()
@@ -147,4 +147,18 @@ void Menu::get_precision(ofstream& file)
   stringstream precise;
   precise << m_select_precision.get_value();
   file << "precision= "+ precise.str()<< endl;
+}
+
+int Menu::write_file()
+{
+  ofstream file("config.txt");
+  if (!file.is_open())
+  {
+    cout << "Error : Cannot open file config " << endl;
+    return -1;
+  }
+  get_color(file);
+  get_precision(file);
+  get_sequence(file);
+  return 0;
 }

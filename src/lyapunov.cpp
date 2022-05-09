@@ -8,6 +8,30 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
                    uint lyap_width, uint lyap_height)
                    : WindowManager(window_width, window_height), m_exponents(lyap_width * lyap_height), m_size(), m_last_position{}
 {
+  ifstream file("config.txt");
+  string str;
+  int r;
+  int g;
+  int b;
+  int i = 0;
+  int precise;
+  while (i < 4 && file >> str >> r >> g >> b)
+  {
+    m_color_lyap[i] = (r << 16u) + (g << 8u) + b;
+    cout << r << g << b << endl;
+    i++;
+  }
+
+  file >> str >> precise;
+  m_precision = precise;
+  cout << m_precision << endl;
+
+  string seq;
+  file >> str >> seq;
+  m_sequence = seq;
+  cout << m_sequence << endl;
+  generate_sequence();
+
   m_size.w = (int)lyap_width;
   m_size.h = (int)lyap_height;
   SDL_Rect texture_position;
@@ -94,7 +118,7 @@ void Lyapunov::update_pixels()
   {
     double exponent = m_exponents[i];
     int green   = ((int) (210 + exponent * 50) >= 0) ? (int) (210 + exponent * 50) : 0;
-    int red     = ((int) (255 + exponent * 52) >= 100) ? (int) (255 + exponent * 52) : 100;
+    //int red     = ((int) (255 + exponent * 52) >= 100) ? (int) (255 + exponent * 52) : 100;
     int blue    = ((int) (255 - exponent * 200) >= 0) ? (int) (255 - exponent * 200) : 0;
     if (exponent < -6)
       set_pixel_RGB(pixels, i, 0, 0, 0);
@@ -111,9 +135,28 @@ void Lyapunov::update_pixels()
 void Lyapunov::generate_sequence()
 {
   string sequence;
-  sequence = "ABBBA";
+  bool error = false;
+
   while(m_sequence.length() < m_precision)
-  { m_sequence += sequence; }
+  {
+    bool error = false;
+    cout << m_sequence.length() << endl;
+    for(uint i = 0; i < m_sequence.length(); ++i)
+    {
+      cout << m_sequence.at(i) << endl;
+      if (m_sequence.at(i) != 'A' || m_sequence.at(i) != 'B')
+      {
+        cout << "An error in the construction of the sequence has been detected. Sequence must contains only A and B. Default Sequence : AB" << std::endl;
+        error = true;
+        break;
+      }
+    }
+    if (m_sequence.empty() || error)
+      m_sequence = "AB";
+    sequence = m_sequence;
+    while((int)m_sequence.length() < m_precision)
+      m_sequence += sequence;
+  }
 }
 
 void Lyapunov::generate(Region region)
@@ -146,16 +189,16 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
   uint height = m_size.h;
   uint number_of_products;
 
-  uint i, j, x, y, y_pos, index;
+  uint x, y, y_pos, index;
+  int i, j;
   double a, b, exp_lyap, xn, rn;
 
   double a_start = m_current_region.get_from_x();
   double b_start = m_current_region.get_from_y();
   double scale_a = ((m_current_region.get_to_x() - a_start) / (double)width);
   double scale_b = ((m_current_region.get_to_y() - b_start) / (double)height);
-  for ( y = y_start; y < y_end; ++y)
+  for (y = y_start; y < y_end; ++y)
   {
-    cout << y * 100 / width << "%" << endl;
     y_pos = y * width;
     for ( x = x_start; x < x_end; ++x)
     {
@@ -166,14 +209,14 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
       xn = X0;
       number_of_products = m_precision / 10;
       vector<double> product(number_of_products);
-      for (i = 0; i < number_of_products; ++i)
+      for(i = 0; i < number_of_products; ++i)
       {
         product[i] = 1;
         for (j = i * number_of_products; j < (i + 1) * number_of_products; ++j)
         {
           rn = m_sequence[j] == 'A' ? a : b;
           xn = rn * xn * (1 - xn);
-          product[i] *= fabs(rn * (1 - 2 * xn));
+          product[i] *= (fabs(rn * (1 - 2 * xn)));
         }
         product[i] = log2(product[i]);
         exp_lyap += product[i];
@@ -235,18 +278,7 @@ void Lyapunov::start_loop()
 void Lyapunov::on_mouse_wheel() {}
 
 void Lyapunov::on_tick()
-{
-  /*
-  if (!m_stop_color)
-  {
-    m_current_color = (360 + (m_current_color - 5 % 360)) % 360;
-    cout << m_current_color << endl;
-    update_pixels();
-    blit_texture();
-    update_screen();
-  }
-  */
-}
+{}
 
  void Lyapunov::on_keyboard(int c)
 {
@@ -265,19 +297,13 @@ int main(int argc, char* argv[])
   Gtk::Main app(argc, argv);
   Menu m = Menu();
   Gtk::Main::run(m);
-  ofstream file ("../include/config.txt");
-
-  if (!file.is_open())
+  if (m.write_file() == 0)
   {
-    cout << "Error : Can not open file config " << endl;
-    return -1;
+    Lyapunov lyapunov(1400, 1000, 1000, 1000);
+    lyapunov.generate();
+    lyapunov.start_loop();
+    return EXIT_SUCCESS;
   }
-  m.get_sequence(file);
-  m.get_color(file);
-  m.get_precision(file);
-  Lyapunov lyapunov(1400, 1000, 1000, 1000);
-  lyapunov.generate();
-  lyapunov.start_loop();
-
-  return 0;
+  else
+    return -1;
 }
