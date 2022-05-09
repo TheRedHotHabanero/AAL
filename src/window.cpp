@@ -7,9 +7,9 @@ ostream& operator << (ostream& flow, SDL_Rect rect)
 }
 
 
-WindowManager::WindowManager(uint w, uint h): m_window_position(), m_quit(false), 
-                                              m_window(nullptr), m_renderer(nullptr), m_draw(nullptr),
-                                              m_texture(nullptr), m_texture_position(), m_texture_original_size{}
+WindowManager::WindowManager(uint w, uint h): m_window_position{}, m_quit{false}, 
+                                              m_window{nullptr}, m_renderer{nullptr}, m_draw{nullptr},
+                                              m_texture{nullptr}, m_texture_position{}, m_texture_original_size{}
 {
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
     throw runtime_error(SDL_GetError());
@@ -63,9 +63,11 @@ void WindowManager::event_loop()
       switch(event.type)
       {
         case SDL_MOUSEBUTTONUP:
-          on_mouse_click(event.button.x, event.button.y);
+          on_mouse_click(event.button.x, event.button.y, event.button.button);
           break;
         case SDL_MOUSEMOTION:
+          m_mouse_position.x = event.motion.x;
+          m_mouse_position.y = event.motion.y;
           on_mouse_move(event.motion.x, event.motion.y);
           break;
         case SDL_WINDOWEVENT:
@@ -85,7 +87,6 @@ void WindowManager::event_loop()
   }
 }
 
-
 const SDL_Rect& WindowManager::get_texture_position() const
 { return m_texture_position; }
 
@@ -99,3 +100,6 @@ WindowManager::~WindowManager()
   SDL_DestroyWindow(m_window);
   SDL_Quit();
 }
+
+const SDL_Rect& WindowManager::get_mouse_position() const
+{ return m_mouse_position; }

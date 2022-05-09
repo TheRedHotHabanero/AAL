@@ -25,7 +25,7 @@ class WindowManager
     SDL_Texture* m_texture;
     SDL_Rect m_texture_position;
     SDL_Rect m_texture_original_size;
-
+    SDL_Rect m_mouse_position;
 
   public:
     WindowManager(uint w, uint h);
@@ -35,8 +35,9 @@ class WindowManager
     void update_texture(vector<uint32_t>& pixels) const;
     void blit_texture() const;
     void update_screen() const;
+    const SDL_Rect& get_mouse_position() const;
     virtual void on_resized(uint new_width, uint new_height) = 0;
-    virtual void on_mouse_click(uint x, uint y) = 0;
+    virtual void on_mouse_click(uint x, uint y, uint button) = 0;
     virtual void on_mouse_move(uint x, uint y) = 0;
     virtual void on_mouse_wheel() = 0;
     virtual void on_keyboard(int c) = 0;

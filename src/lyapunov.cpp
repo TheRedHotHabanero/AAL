@@ -6,7 +6,7 @@
 
 Lyapunov::Lyapunov(uint window_width, uint window_height,
                    uint lyap_width, uint lyap_height)
-                   : WindowManager(window_width, window_height), m_exponents(lyap_width * lyap_height), m_size()
+                   : WindowManager(window_width, window_height), m_exponents(lyap_width * lyap_height), m_size(), m_last_position{}
 {
   m_size.w = (int)lyap_width;
   m_size.h = (int)lyap_height;
@@ -19,15 +19,17 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
   init_render(m_size, texture_position);
 }
 
-array<double, 2> Lyapunov::get_coord(int x, int y)
+Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
 {
-  array<double, 2> coord{};
   SDL_Rect texture_position = get_texture_position();
-  coord[0] = (double)(x < texture_position.x ? 0 : x > texture_position.x + texture_position.w ?
-              texture_position.w : x - texture_position.x) / (double) texture_position.w * (m_a_end - m_a_start) + m_a_start;
-  coord[1] = (double) (y < texture_position.y ? 0 : y > texture_position.y + texture_position.h ?
-              texture_position.h : y - texture_position.y) / (double) texture_position.h * (m_b_end - m_b_start) + m_b_start;
-  return coord;
+  Region region
+  {
+    (double) (from_x  < texture_position.x ? 0 : from_x > texture_position.x + texture_position.w ? texture_position.w : from_x - texture_position.x) / (double) texture_position.w * (m_current_region.get_to_x() - m_current_region.get_from_x()) + m_current_region.get_from_x(),
+    (double) (to_x    < texture_position.x ? 0 : to_x   > texture_position.x + texture_position.w ? texture_position.w : to_x   - texture_position.x) / (double) texture_position.w * (m_current_region.get_to_x() - m_current_region.get_from_x()) + m_current_region.get_from_x(),
+    (double) (from_y  < texture_position.y ? 0 : from_y > texture_position.y + texture_position.h ? texture_position.h : from_y - texture_position.y) / (double) texture_position.h * (m_current_region.get_to_y() - m_current_region.get_from_y()) + m_current_region.get_from_y(),
+    (double) (to_y    < texture_position.y ? 0 : to_y   > texture_position.y + texture_position.h ? texture_position.h : to_y   - texture_position.y) / (double) texture_position.h * (m_current_region.get_to_y() - m_current_region.get_from_y()) + m_current_region.get_from_y()
+  };
+  return region;
 }
 
 void Lyapunov::set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b)
@@ -43,43 +45,43 @@ void Lyapunov::set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double
     case 0:
     {
       set_pixel_RGB(pixels, index, (int) (v * 255), //v
-                            (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255), //n
-                            (int) (v * (1 - s) * 255)); //l
+                    (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255), //n
+                    (int) (v * (1 - s) * 255)); //l
       break;
     }
     case 1:
     {
       set_pixel_RGB(pixels, index, (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255), //m
-                            (int) (v * 255), //v
-                            (int) (v * (1 - s) * 255)); //l
+                    (int) (v * 255), //v
+                    (int) (v * (1 - s) * 255)); //l
       break;
     }
     case 2:
     {
       set_pixel_RGB(pixels, index, (int) (v * (1 - s) * 255), //l
-                            (int) (v * 255), //v
-                            (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255)); //n
+                    (int) (v * 255), //v
+                    (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255)); //n
       break;
     }
     case 3:
     {
       set_pixel_RGB(pixels, index, (int) (v * (1 - s) * 255), //l
-                            (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255), //m
-                            (int) (v * 255)); //v
+                    (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255), //m
+                    (int) (v * 255)); //v
       break;
     }
     case 4:
     {
       set_pixel_RGB(pixels, index, (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255), //n
-                            (int) (v * (1 - s) * 255), //l
-                            (int) (v * 255)); //v
+                    (int) (v * (1 - s) * 255), //l
+                    (int) (v * 255)); //v
       break;
     }
     case 5:
     {
       set_pixel_RGB(pixels, index, (int) (v * 255), //v
-                            (int) (v * (1 - s) * 255), //l
-                            (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255)); //m
+                    (int) (v * (1 - s) * 255), //l
+                    (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255)); //m
     break;
     }
   }
@@ -94,31 +96,35 @@ void Lyapunov::update_pixels()
     int green_layer   = ((int) (210 + exponent * 50) >= 0) ? (int) (210 + exponent * 50) : 0;
     int red_layer     = ((int) (255 + exponent * 52) >= 100) ? (int) (255 + exponent * 52) : 100;
     int blue_layer    = ((int) (255 - exponent * 200) >= 0) ? (int) (255 - exponent * 200) : 0;
-    int h = current_color;
-    set_pixel_HSV(pixels, i, green_layer + h, 1, 1);
+    if (exponent < -6)
+      set_pixel_RGB(pixels, i, 0, 0, 0);
+    else if (exponent <= 0)
+      set_pixel_RGB(pixels, i, 0, green_layer, 0);
+    else if (exponent > 0)
+      set_pixel_RGB(pixels, i, 0, 0, blue_layer);
+    else if (exponent >= 1)
+      set_pixel_RGB(pixels, i, 0, 0, 0);
   }
   update_texture(pixels);
 }
 
 void Lyapunov::generate_sequence()
 {
-  //cout << "==========     Введите последовательность A-B     ==========\n";
   string sequence;
   sequence = "BBABBABBABBABAABBBBA";
-  while(m_sequence.length() < precision)
+  while(m_sequence.length() < m_precision)
   { m_sequence += sequence; }
 }
 
-void Lyapunov::generate(double a_start, double b_start, double a_end, double b_end)
+void Lyapunov::generate(Region region)
 {
-  if (a_start < 0 || a_end > 4 || b_start < 0 || b_end > 4)
+  m_current_region = Region{region};
+  if (region.get_from_x() < 0 || region.get_to_x() > 4 || region.get_from_y() < 0 || region.get_to_y() > 4)
     throw domain_error("Invalid domain to generate Lyapunov");
 
   if (m_sequence.empty())
     generate_sequence();
-
-  //SDL_Rect position = get_texture_position();
-
+  /*
   if (a_start > a_end)
   {
     double change = a_start;
@@ -131,11 +137,7 @@ void Lyapunov::generate(double a_start, double b_start, double a_end, double b_e
     b_start = b_end;
     b_end = change;
   }
-
-  m_a_start = a_start;
-  m_a_end   = a_end;
-  m_b_start = b_start;
-  m_b_end   = b_end;
+  */
 
   uint nb_thread = thread::hardware_concurrency();
   vector<thread> threads(nb_thread);
@@ -147,6 +149,8 @@ void Lyapunov::generate(double a_start, double b_start, double a_end, double b_e
 
   update_pixels();
   blit_texture();
+  SDL_Rect mouse_pos = get_mouse_position();
+  draw_rect((int)mouse_pos.x - 200, (int)mouse_pos.y - 200, 400, 400);
   update_screen();
 }
 
@@ -159,8 +163,10 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
   uint i, x, y, yPos, index;
   double a, b, exp_lyap, xn, rn;
 
-  double scale_a = ((m_a_end - m_a_start) / (double)width);
-  double scale_b = ((m_b_end - m_b_start) / (double)height);
+  double a_start = m_current_region.get_from_x();
+  double b_start = m_current_region.get_from_y();
+  double scale_a = ((m_current_region.get_to_x() - a_start) / (double)width);
+  double scale_b = ((m_current_region.get_to_y() - b_start) / (double)height);
   for ( y = y_start; y < y_end; ++y)
   {
     cout << y * 100 / width << "%" << endl;
@@ -168,18 +174,18 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
     for ( x = x_start; x < x_end; ++x)
     {
       index = yPos + x;
-      a = m_a_start + x * scale_a;
-      b = m_b_start + y * scale_b;
+      a = a_start + x * scale_a;
+      b = b_start + y * scale_b;
       exp_lyap = 0;
       xn = X0;
 
-      for (int i = 0; i < precision; ++i)
+      for (int i = 0; i < m_precision; ++i)
       {
         rn = m_sequence[i] == 'A' ? a : b;
         xn = rn * xn * (1 - xn);
         exp_lyap += log2(fabs(rn * (1 - 2 * xn)));
       }
-      m_exponents[index] = exp_lyap / precision;
+      m_exponents[index] = exp_lyap / m_precision;
     }
   }
 }
@@ -195,11 +201,29 @@ void Lyapunov::on_resized(uint new_width, uint new_height)
   update_screen();
 }
 
-void Lyapunov::on_mouse_click(uint x, uint y)
+void Lyapunov::on_mouse_click(uint x, uint y, uint button)
 {
-  array<double, 2> coord_start = get_coord((int)x - 200, (int)y - 200);
-  array<double, 2> coord_end = get_coord((int)x + 200, (int)y + 200);
-  generate(coord_start[0], coord_start[1], coord_end[0], coord_end[1]);
+  switch(button)
+  {
+    case SDL_BUTTON_LEFT:
+    {
+      m_last_position.emplace(m_current_region);
+      Region new_region = get_region((int)x - 200, (int)x + 200, (int)y - 200, (int)y + 200);
+      generate(new_region);
+    }
+      break;
+    case SDL_BUTTON_RIGHT:
+    {
+      if (m_last_position.empty())
+        return;
+      Region dezoom = m_last_position.top();
+      m_last_position.pop();
+      generate(dezoom);
+    }
+      break;
+    default:
+      break;
+  }
 }
 
 void Lyapunov::on_mouse_move(uint x, uint y)
@@ -219,14 +243,16 @@ void Lyapunov::on_mouse_wheel() {}
 
 void Lyapunov::on_tick()
 {
-  if (!stop_color)
+  /*
+  if (!m_stop_color)
   {
-    current_color = (360 + (current_color - 5 % 360)) % 360;
-    cout << current_color << endl;
+    m_current_color = (360 + (m_current_color - 5 % 360)) % 360;
+    cout << m_current_color << endl;
     update_pixels();
     blit_texture();
     update_screen();
   }
+  */
 }
 
  void Lyapunov::on_keyboard(int c)
@@ -234,7 +260,7 @@ void Lyapunov::on_tick()
   switch (c)
   {
     case SDLK_SPACE:
-      stop_color = !stop_color;
+      m_stop_color = !m_stop_color;
       break;
   }
 }
@@ -244,7 +270,7 @@ int main(int argc, char* argv[])
   (void)argc;
   (void)argv;
   Lyapunov lyapunov(1400, 1000, 1000, 1000);
-  lyapunov.generate(0, 0, 4.0, 4.0);
+  lyapunov.generate();
   lyapunov.start_loop();
 
   return 0;

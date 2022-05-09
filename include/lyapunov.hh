@@ -13,8 +13,10 @@
 #include <thread>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_quit.h>
+#include <stack>
 #include "window.hh"
 #include "time.hh"
+#include "region.hh"
 
 constexpr int X0            = 0.5;
 constexpr int NUM_OF_ITER   = 700;
@@ -22,6 +24,7 @@ constexpr int NUM_OF_ITER   = 700;
 using std::cin;
 using std::cout;
 using std::endl;
+using std::stack;
 using std::array;
 using std::thread;
 using std::string;
@@ -36,27 +39,25 @@ class Lyapunov: WindowManager
     vector<double> m_exponents;
     string m_sequence;
     SDL_Rect m_size;
-    double m_a_start{0};
-    double m_b_start{0};
-    double m_a_end{4};
-    double m_b_end{4};
-    int precision{100};
+    Region m_current_region{0, 4, 0, 4};
+    int m_precision{100};
     long m_last_move{get_current_time()};
-    int current_color{0};
-    bool stop_color{false};
+    int m_current_color{0};
+    bool m_stop_color{false};
+    stack<Region> m_last_position;
     void generate_sequence();
 
   public:
     Lyapunov( uint window_width, uint window_height, 
               uint lyap_width, uint lyap_height);
-    void generate(double a_start = 0, double b_start = 0, double a_end = 4, double b_end = 4);
+    void generate(Region region = {0, 4, 0, 4});
     void generate_part(uint x_start, uint y_start, uint x_end, uint y_end);
-    array<double, 2> get_coord(int x, int y);
+    Region get_region(int from_x, int to_x, int from_y, int to_y);
     void on_resized(uint new_width, uint new_height) override;
     void set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b);
     void set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double s, double v);
     void update_pixels();
-    void on_mouse_click(uint x, uint y) override;
+    void on_mouse_click(uint x, uint y, uint button) override;
     void on_mouse_move(uint x, uint y) override;
     void on_mouse_wheel() override;
     void on_keyboard(int c) override;
