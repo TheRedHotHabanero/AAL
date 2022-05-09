@@ -233,8 +233,8 @@ void Lyapunov::on_resized(uint new_width, uint new_height)
   new_pos.x = (int)((new_width >> 1u) - ((uint)new_pos.w >> 1));
   new_pos.y = (int)((new_height >> 1u) - ((uint)new_pos.h >> 1));
   set_texture_position(new_pos);
-  blit_texture();
-  update_screen();
+  //blit_texture();
+  //update_screen();
 }
 
 void Lyapunov::on_mouse_click(uint x, uint y, uint button)

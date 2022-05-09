@@ -45,6 +45,7 @@ class WindowManager
     void event_loop();
     const SDL_Rect& get_texture_position() const;
     void set_texture_position(SDL_Rect texture_position);
+    void render(SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip);
 };
 
 ostream& operator << (ostream& flow, SDL_Rect rect);

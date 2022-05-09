@@ -53,9 +53,28 @@ void WindowManager::blit_texture() const
 void WindowManager::update_screen() const
 { SDL_RenderPresent(m_renderer); }
 
+void WindowManager::render(SDL_Rect* clip,double angle, SDL_Point* center, SDL_RendererFlip flip)
+{
+  SDL_Rect render_quad = {clip->x, clip->y, clip->w, clip->h};
+  SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+  SDL_RenderClear(m_renderer);
+  SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
+
+  if (clip!= NULL)
+  {
+    render_quad.w = clip->w;
+    render_quad.h = clip->h;
+  }
+  SDL_RenderCopyEx(m_renderer, m_texture, &m_texture_original_size, &render_quad, angle, center, flip);
+}
+
 void WindowManager::event_loop()
 {
   SDL_Event event;
+  double degree = 0;
+  bool pause = true;
+  SDL_Rect test_rect = m_texture_original_size;
+  SDL_RendererFlip flip_type = SDL_FLIP_NONE;
   while(!m_quit)
   {
     while(SDL_PollEvent(&event))
@@ -65,16 +84,66 @@ void WindowManager::event_loop()
         case SDL_MOUSEBUTTONUP:
           on_mouse_click(event.button.x, event.button.y, event.button.button);
           break;
+        case SDL_MOUSEWHEEL:
+          on_mouse_wheel();
+          break;
         case SDL_MOUSEMOTION:
           m_mouse_position.x = event.motion.x;
           m_mouse_position.y = event.motion.y;
           on_mouse_move(event.motion.x, event.motion.y);
+          break;
+        case SDL_KEYUP:
+          on_keyboard(event.key.keysym.sym);
+          break;
+        case SDL_KEYDOWN:
+		      switch(event.key.keysym.sym)
+		      {
+		        case SDLK_a:
+		          degree += 1;
+		          break;
+		        case SDLK_e:
+		          degree -= 1;
+		          break;
+		        case SDLK_d:
+		          flip_type = SDL_FLIP_HORIZONTAL;
+		          break;
+		        case SDLK_s:
+		          flip_type = SDL_FLIP_NONE;
+		          break;
+		        case SDLK_z:
+		          flip_type = SDL_FLIP_VERTICAL;
+		          break;
+		        case SDLK_q:
+		          degree += 180;
+		          break;
+		        case SDLK_p:
+		          pause = !pause;
+		          break;
+            case SDLK_RIGHT:
+              test_rect.x +=10;
+              break;
+            case SDLK_LEFT:
+              test_rect.x -=10;
+              break;
+            case SDLK_UP:
+              test_rect.y -=10;
+              break;
+            case SDLK_DOWN:
+              test_rect.y +=10;
+              break;
+		      }
+          render(&test_rect, degree, NULL, flip_type);
+          update_screen();
           break;
         case SDL_WINDOWEVENT:
           switch(event.window.event)
           {
             case SDL_WINDOWEVENT_RESIZED:
               on_resized(event.window.data1, event.window.data2);
+              break;
+            case SDL_WINDOWEVENT_MOVED:
+              render(&m_texture_position, 0, NULL, SDL_FLIP_NONE);
+              update_screen();
               break;
           }
           break;
@@ -83,6 +152,7 @@ void WindowManager::event_loop()
           break;
       }
     }
+    on_tick();
     SDL_Delay(10);
   }
 }
