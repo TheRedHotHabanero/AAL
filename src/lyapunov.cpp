@@ -135,7 +135,6 @@ void Lyapunov::set_color_scale(int tab, uint32_t max, uint32_t min)
 
 void Lyapunov::update_pixels()
 {
-  cout << "in update Pixels" << endl;
   vector<uint32_t> pixels(m_size.w * m_size.h);
   int red;
   int green;
@@ -299,7 +298,10 @@ void Lyapunov::on_mouse_click(uint x, uint y, uint button)
     {
       m_last_position.emplace(m_current_region);
       Region new_region = get_region((int)x - 200, (int)x + 200, (int)y - 200, (int)y + 200);
-      generate(new_region);
+      Region temp = Region{m_current_region};
+      m_current_region.rotate(get_degree(), m_current_region.get_to_x() - m_current_region.get_from_x());
+      generate(m_current_region);
+      m_current_region = temp;
     }
       break;
     case SDL_BUTTON_RIGHT:
@@ -394,7 +396,7 @@ void Lyapunov::on_keyboard_down(int c)
       Gtk::Main::run(k);
       update_settings();
 
-      if (seq.compare(m_sequence) != || precise != m_precision)
+      if (seq.compare(m_sequence) != 0 || precise != m_precision)
         generate();
 
       update_pixels();

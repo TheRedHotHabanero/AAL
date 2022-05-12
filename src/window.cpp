@@ -122,7 +122,7 @@ void WindowManager::set_flip(SDL_RendererFlip flip)
 { this->m_flip = flip; }
 
 void WindowManager::add_degree(int degrees)
-{ this->angle += degrees; }
+{ (this->angle += degrees) %= 360; }
 
 SDL_RendererFlip WindowManager::get_flip()
 { return m_flip; }
@@ -169,3 +169,17 @@ WindowManager::~WindowManager()
 
 const SDL_Rect& WindowManager::get_mouse_position() const
 { return m_mouse_position; }
+
+int WindowManager::get_degree()
+{ return angle; }
+
+void WindowManager::screen_shot() const
+{
+  long current_time = get_current_time();
+  string file_name = to_string(current_time);
+  file_name = "screenshot/" + file_name + ".png";
+  SDL_Surface* screen_shot = SDL_CreateRGBSurface(0, m_texture_position.w, m_texture_position.h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+  SDL_RenderReadPixels(m_renderer, &m_texture_position, screen_shot->format->format, screen_shot->pixels, screen_shot->pitch);
+  SDL_SaveBMP(screen_shot, file_name.data());
+  SDL_FreeSurface(screen_shot);
+}

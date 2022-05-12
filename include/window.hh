@@ -4,10 +4,13 @@
 #include <SDL2/SDL.h>
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include "time.hh"
 
 using std::vector;
+using std::string;
+using std::to_string;
 using std::runtime_error;
 using std::ostream;
 using std::cout;
@@ -25,7 +28,7 @@ class WindowManager
     SDL_Rect m_texture_position;
     SDL_Rect m_texture_original_size;
     SDL_Rect m_mouse_position;
-    double angle = 0;
+    int angle = 0;
     SDL_RendererFlip m_flip = SDL_FLIP_NONE;
 
   public:
@@ -36,7 +39,9 @@ class WindowManager
     void update_texture(vector<uint32_t>& pixels) const;
     void blit_texture() const;
     void update_screen() const;
+    void screen_shot() const;
     const SDL_Rect& get_mouse_position() const;
+    int get_degree();
     void add_degree(int degrees);
     void rotate_horizontally();
     void rotate_vertically();

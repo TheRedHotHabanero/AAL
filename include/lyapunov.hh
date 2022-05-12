@@ -51,6 +51,7 @@ class Lyapunov: WindowManager
     stack<Region> m_last_position;
     uint32_t m_color_lyap[4];
     int color_scale[12];
+    long last_srreenshot = 0;
     void generate_sequence();
 
   public:
