@@ -47,7 +47,7 @@ void WindowManager::blit_texture() const
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
   SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
-  SDL_RenderCopyEX(m_renderer, m_texture, nullptr, &m_texture_position, angle, nullptr, m_flip);
+  SDL_RenderCopyEx(m_renderer, m_texture, nullptr, &m_texture_position, angle, nullptr, m_flip);
 }
 
 void WindowManager::update_screen() const
@@ -88,7 +88,7 @@ void WindowManager::event_loop()
           on_keyboard_up(event.key.keysym.sym);
           break;
         case SDL_KEYDOWN:
-          on_keyboard_down(event.key.keysym.sym)
+          on_keyboard_down(event.key.keysym.sym);
 		      break;
         case SDL_WINDOWEVENT:
           switch(event.window.event)

@@ -26,7 +26,7 @@ class WindowManager
     SDL_Rect m_texture_original_size;
     SDL_Rect m_mouse_position;
     double angle = 0;
-    SDL_RebderFlip m_flip = SDL_FLIP_NONE;
+    SDL_RendererFlip m_flip = SDL_FLIP_NONE;
 
   public:
     WindowManager(uint w, uint h);
@@ -41,7 +41,7 @@ class WindowManager
     void rotate_horizontally();
     void rotate_vertically();
     SDL_RendererFlip get_flip();
-    void set_flip(SDL_RenderFlip flip);
+    void set_flip(SDL_RendererFlip flip);
     virtual void on_resized(uint new_width, uint new_height) = 0;
     virtual void on_mouse_click(uint x, uint y, uint button) = 0;
     virtual void on_mouse_move(uint x, uint y) = 0;
