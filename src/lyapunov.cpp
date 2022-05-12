@@ -8,6 +8,20 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
                    uint lyap_width, uint lyap_height)
                    : WindowManager(window_width, window_height), m_exponents(lyap_width * lyap_height), m_size(), m_last_position{}
 {
+  update_settings();
+  m_size.w = (int)lyap_width;
+  m_size.h = (int)lyap_height;
+  SDL_Rect texture_position;
+  texture_position.w = (int)(window_width < lyap_width ? window_width : lyap_width);
+  texture_position.h = (int)(window_height < lyap_height ? window_height : lyap_height);
+  texture_position.w = texture_position.h = texture_position.w < texture_position.h ? texture_position.w : texture_position.h;
+  texture_position.x = (int) ((window_width >> 1u) - ((uint)texture_position.w >> 1u));
+  texture_position.y = (int) ((window_height >> 1u) - ((uint)texture_position.h >> 1u));
+  init_render(m_size, texture_position);
+}
+
+void Lyapunov::update_settings()
+{
   ifstream file("config.txt");
   string str;
   int r;
@@ -21,7 +35,6 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
     cout << r << " " << g << " " << b << endl;
     i++;
   }
-
   set_color_scale(0, m_color_lyap[1], m_color_lyap[0]); //Neg
   set_color_scale(3, m_color_lyap[3], m_color_lyap[2]); //Pos
 
@@ -34,16 +47,6 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
   m_sequence = seq;
   cout << m_sequence << endl;
   generate_sequence();
-
-  m_size.w = (int)lyap_width;
-  m_size.h = (int)lyap_height;
-  SDL_Rect texture_position;
-  texture_position.w = (int)(window_width < lyap_width ? window_width : lyap_width);
-  texture_position.h = (int)(window_height < lyap_height ? window_height : lyap_height);
-  texture_position.w = texture_position.h = texture_position.w < texture_position.h ? texture_position.w : texture_position.h;
-  texture_position.x = (int) ((window_width >> 1u) - ((uint)texture_position.w >> 1u));
-  texture_position.y = (int) ((window_height >> 1u) - ((uint)texture_position.h >> 1u));
-  init_render(m_size, texture_position);
 }
 
 Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
@@ -359,26 +362,39 @@ void Lyapunov::on_keyboard_down(int c)
     case SDLK_RIGHT:
       distance = (m_current_region.get_to_x() - m_current_region.get_from_x()) / 2;
       m_current_region = {m_current_region.get_from_x() + distance, m_current_region.get_to_x() + distance,
-                         m_current_region.get_from_y(), m_current_region.get_to_y()};
+                          m_current_region.get_from_y(), m_current_region.get_to_y()};
       generate(m_current_region);
       break;
     case SDLK_LEFT:
       distance = (m_current_region.get_to_x() - m_current_region.get_from_x()) / ( - 2 );
       m_current_region = {m_current_region.get_from_x() + distance, m_current_region.get_to_x() + distance,
-                         m_current_region.get_from_y(), m_current_region.get_to_y()};
+                          m_current_region.get_from_y(), m_current_region.get_to_y()};
       generate(m_current_region);
       break;
     case SDLK_DOWN:
       distance= (m_current_region.get_to_y() - m_current_region.get_from_y()) / 2;
       m_current_region = {m_current_region.get_from_x(), m_current_region.get_to_x(),
-                         m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
+                          m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
       generate(m_current_region);
       break;
     case SDLK_UP:
       distance = (m_current_region.get_to_y() - m_current_region.get_from_y()) / ( - 2);
       m_current_region = {m_current_region.get_from_x(), m_current_region.get_to_x(),
-                         m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
+                          m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
       generate(m_current_region);
+      break;
+    case SDLK_ESCAPE:
+    {
+      Menu k = Menu();
+      k.set_color_button();
+      Gtk::Main::run(k);
+      update_settings();
+      update_pixels();
+      blit_texture();
+      update_screen();
+    }
+      break;
+    default:
       break;
   }
   blit_texture();
@@ -392,6 +408,7 @@ int main(int argc, char* argv[])
   Gtk::Main app(argc, argv);
   Menu m = Menu();
   Gtk::Main::run(m);
+  m.write_file();
   Lyapunov lyapunov(1400, 1000, 1000, 1000);
   lyapunov.generate();
   lyapunov.start_loop();

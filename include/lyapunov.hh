@@ -64,6 +64,7 @@ class Lyapunov: WindowManager
     void set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double s, double v);
     void set_color_scale(int tab, uint32_t max, uint32_t min);
     void update_pixels();
+    void update_settings();
     void on_mouse_click(uint x, uint y, uint button) override;
     void on_mouse_move(uint x, uint y) override;
     void on_mouse_wheel() override;

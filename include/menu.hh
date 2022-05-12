@@ -13,6 +13,7 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::ofstream;
+using std::ifstream;
 using std::stringstream;
 
 const int MINSPIN = 10;
@@ -52,6 +53,7 @@ class Menu: public Gtk::Window
     void new_precision();
     void write_file();
     void close_button();
+    void set_color_button();
 };
 
 #endif // __SRC_MENU_HH__

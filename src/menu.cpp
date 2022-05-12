@@ -1,10 +1,6 @@
 #include "../include/menu.hh"
 
-Menu::Menu() : m_color_button_neg_s(), 
-               m_color_button_neg_e(), 
-               m_color_button_pos_s(),
-               m_color_button_pos_e(),
-               menu_write()
+Menu::Menu() : menu_write()
 {
   Menu::set_position(Gtk::WIN_POS_CENTER);
   Menu::resize(450, 300);
@@ -14,7 +10,17 @@ Menu::Menu() : m_color_button_neg_s(),
   grid.set_column_spacing(0);
   grid.set_row_spacing(0);
 
+  m_color[0].set_rgba(1.0, 1.0, 0);
+  m_color[1].set_rgba(0.196, 0.118, 0);
+  m_color[2].set_rgba(0, 0.753, 1.0);
+  m_color[3].set_rgba(0, 0.11, 0.337);
+
   Menu::set_title("Параметры генерации фракталов Ляпунова");
+
+  m_color_button_neg_s.set_rgba(m_color[0]);
+  m_color_button_neg_e.set_rgba(m_color[1]);
+  m_color_button_pos_s.set_rgba(m_color[2]);
+  m_color_button_pos_e.set_rgba(m_color[3]);
 
   // min neg
   label_expo_neg_e = Gtk::AccelLabel("Минимальный отрицательный терминал");
@@ -77,6 +83,25 @@ Menu::Menu() : m_color_button_neg_s(),
   Menu::text_area();
   grid.show_all();
   add(grid);
+}
+
+void Menu::set_color_button()
+{
+  ifstream file("config.txt");
+  string str;
+  int r;
+  int g;
+  int b;
+  int i = 0;
+  while(i < 4 && file >> str >> r >> g >> b)
+  {
+    m_color[i].set_rgba(r / 255.0, g / 255.0, b / 255.0);
+    i++;
+  }
+  m_color_button_neg_s.set_rgba(m_color[0]);
+  m_color_button_neg_e.set_rgba(m_color[1]);
+  m_color_button_pos_s.set_rgba(m_color[2]);
+  m_color_button_pos_e.set_rgba(m_color[3]);
 }
 
 void Menu::set_color_min_neg_expo()
