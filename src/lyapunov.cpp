@@ -184,9 +184,6 @@ void Lyapunov::generate_sequence()
           continue;
           break;
         default:
-          cout  << "An error in the construction of the sequence has been detected. \
-                    Sequence must contains only A and B. Default Sequence : AB" 
-                << endl;
           error = true;
           break;
       }
@@ -194,7 +191,12 @@ void Lyapunov::generate_sequence()
         break;
     }
     if (m_sequence.empty() || error)
+    {
+      cout  << "An error in the construction of the sequence has been detected. \
+                Sequence must contains only A and B. Default Sequence : AB" 
+            << endl;
       m_sequence = "AB";
+    }
     sequence = m_sequence;
     while((int)m_sequence.length() < m_precision)
       m_sequence += sequence;
@@ -385,10 +387,16 @@ void Lyapunov::on_keyboard_down(int c)
       break;
     case SDLK_ESCAPE:
     {
+      string seq = m_sequence;
+      int precise = m_precision;
       Menu k = Menu();
       k.set_color_button();
       Gtk::Main::run(k);
       update_settings();
+
+      if (seq.compare(m_sequence) != || precise != m_precision)
+        generate();
+
       update_pixels();
       blit_texture();
       update_screen();
