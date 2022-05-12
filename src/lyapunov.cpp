@@ -160,16 +160,23 @@ void Lyapunov::generate_sequence()
     cout << m_sequence.length() << endl;
     for(uint i = 0; i < m_sequence.length(); ++i)
     {
-      cout << m_sequence.at(i) << " ici " << endl;
-      if (not(m_sequence.at(i) != 'A' || m_sequence.at(i) != 'B'))
+      switch(m_sequence.at(i))
       {
-        cout  << m_sequence 
-              << m_sequence.length() 
-              << "An error in the construction of the sequence has been detected. Sequence must contains only A and B. Default Sequence : AB" 
-              << endl;
-        error = true;
-        break;
+        case 'A':
+          continue;
+          break;
+        case 'B':
+          continue;
+          break;
+        default:
+          cout  << "An error in the construction of the sequence has been detected. \
+                    Sequence must contains only A and B. Default Sequence : AB" 
+                << endl;
+          error = true;
+          break;
       }
+      if (error)
+        break;
     }
     if (m_sequence.empty() || error)
       m_sequence = "AB";
