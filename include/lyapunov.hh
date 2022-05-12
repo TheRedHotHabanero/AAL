@@ -65,7 +65,8 @@ class Lyapunov: WindowManager
     void on_mouse_click(uint x, uint y, uint button) override;
     void on_mouse_move(uint x, uint y) override;
     void on_mouse_wheel() override;
-    void on_keyboard(int c) override;
+    void on_keyboard_up(int c) override;
+    void on_keyboard_down(int c) override;
     void on_tick() override;
     void start_loop();
 };

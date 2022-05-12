@@ -163,7 +163,10 @@ void Lyapunov::generate_sequence()
       cout << m_sequence.at(i) << " ici " << endl;
       if (not(m_sequence.at(i) != 'A' || m_sequence.at(i) != 'B'))
       {
-        cout << m_sequence << m_sequence.length() << "An error in the construction of the sequence has been detected. Sequence must contains only A and B. Default Sequence : AB" << endl;
+        cout  << m_sequence 
+              << m_sequence.length() 
+              << "An error in the construction of the sequence has been detected. Sequence must contains only A and B. Default Sequence : AB" 
+              << endl;
         error = true;
         break;
       }
@@ -297,7 +300,7 @@ void Lyapunov::on_mouse_wheel() {}
 void Lyapunov::on_tick()
 {}
 
- void Lyapunov::on_keyboard(int c)
+void Lyapunov::on_keyboard_up(int c)
 {
   switch (c)
   {
@@ -305,6 +308,27 @@ void Lyapunov::on_tick()
       m_stop_color = !m_stop_color;
       break;
   }
+}
+
+void Lyapunov::on_keyboard_down(int c)
+{
+  switch(c)
+  {
+    case SDLK_z:
+      add_degree(90);
+      break;
+    case SDLK_s:
+      add_degree(-90);
+      break;
+    case SDLK_d:
+      rotate_vertically();
+      break;
+    case SDLK_q:
+      rotate_horizontally();
+        break;
+  }
+  blit_texture();
+  update_screen();
 }
 
 int main(int argc, char* argv[])

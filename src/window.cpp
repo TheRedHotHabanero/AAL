@@ -47,29 +47,26 @@ void WindowManager::blit_texture() const
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
   SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
-  SDL_RenderCopy(m_renderer, m_texture, nullptr, &m_texture_position);
+  SDL_RenderCopyEX(m_renderer, m_texture, nullptr, &m_texture_position, angle, nullptr, m_flip);
 }
 
 void WindowManager::update_screen() const
 { SDL_RenderPresent(m_renderer); }
 
+/*
 void WindowManager::render(SDL_Rect* clip,double angle, SDL_Point* center, SDL_RendererFlip flip)
 {
   SDL_Rect render_quad = {clip->x, clip->y, clip->w, clip->h};
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
   SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
-
   SDL_RenderCopyEx(m_renderer, m_texture, &m_texture_original_size, &render_quad, angle, center, flip);
 }
+*/
 
 void WindowManager::event_loop()
 {
   SDL_Event event;
-  double degree = 0;
-  bool pause = true;
-  SDL_Rect test_rect = m_texture_original_size;
-  SDL_RendererFlip flip_type = SDL_FLIP_NONE;
   while(!m_quit)
   {
     while(SDL_PollEvent(&event))
@@ -88,48 +85,11 @@ void WindowManager::event_loop()
           on_mouse_move(event.motion.x, event.motion.y);
           break;
         case SDL_KEYUP:
-          on_keyboard(event.key.keysym.sym);
+          on_keyboard_up(event.key.keysym.sym);
           break;
         case SDL_KEYDOWN:
-		      switch(event.key.keysym.sym)
-		      {
-		        case SDLK_a:
-		          degree += 1;
-		          break;
-		        case SDLK_e:
-		          degree -= 1;
-		          break;
-		        case SDLK_d:
-		          flip_type = SDL_FLIP_HORIZONTAL;
-		          break;
-		        case SDLK_s:
-		          flip_type = SDL_FLIP_NONE;
-		          break;
-		        case SDLK_z:
-		          flip_type = SDL_FLIP_VERTICAL;
-		          break;
-		        case SDLK_q:
-		          degree += 180;
-		          break;
-		        case SDLK_p:
-		          pause = !pause;
-		          break;
-            case SDLK_RIGHT:
-              test_rect.x +=10;
-              break;
-            case SDLK_LEFT:
-              test_rect.x -=10;
-              break;
-            case SDLK_UP:
-              test_rect.y -=10;
-              break;
-            case SDLK_DOWN:
-              test_rect.y +=10;
-              break;
-		      }
-          render(&test_rect, degree, NULL, flip_type);
-          update_screen();
-          break;
+          on_keyboard_down(event.key.keysym.sym)
+		      break;
         case SDL_WINDOWEVENT:
           switch(event.window.event)
           {
@@ -137,7 +97,7 @@ void WindowManager::event_loop()
               on_resized(event.window.data1, event.window.data2);
               break;
             case SDL_WINDOWEVENT_MOVED:
-              render(&m_texture_position, 0, NULL, SDL_FLIP_NONE);
+              blit_texture();
               update_screen();
               break;
           }
@@ -157,6 +117,47 @@ const SDL_Rect& WindowManager::get_texture_position() const
 
 void WindowManager::set_texture_position(SDL_Rect texture_position)
 { m_texture_position = texture_position; }
+
+void WindowManager::set_flip(SDL_RendererFlip flip)
+{ this->m_flip = flip; }
+
+void WindowManager::add_degree(int degrees)
+{ this->angle += degrees; }
+
+SDL_RendererFlip WindowManager::get_flip()
+{ return m_flip; }
+
+void WindowManager::rotate_horizontally()
+{
+  switch(m_flip)
+  {
+    case SDL_FLIP_NONE:
+      set_flip(SDL_FLIP_HORIZONTAL);
+      break;
+    case SDL_FLIP_HORIZONTAL:
+      set_flip(SDL_FLIP_NONE);
+      break;
+    case SDL_FLIP_VERTICAL:
+      set_flip(SDL_FLIP_NONE);
+      break;
+  }
+}
+
+void WindowManager::rotate_vertically()
+{
+  switch(m_flip)
+  {
+    case SDL_FLIP_NONE:
+      set_flip(SDL_FLIP_VERTICAL);
+      break;
+    case SDL_FLIP_VERTICAL:
+      set_flip(SDL_FLIP_NONE);
+      break;
+    case SDL_FLIP_HORIZONTAL:
+      set_flip(SDL_FLIP_NONE);
+      break;
+  }
+}
 
 WindowManager::~WindowManager()
 {
