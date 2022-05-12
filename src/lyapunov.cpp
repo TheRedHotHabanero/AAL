@@ -118,13 +118,14 @@ void Lyapunov::set_color_scale(int tab, uint32_t max, uint32_t min)
 {
   int curr_max = max;
   int curr_min = min;
+  cout << endl << "begin" << max << " " << min << endl;
   for (int i = 2; i > 0; i--)
   {
     curr_max = max % 256;
     curr_min = min % 256;
     color_scale[tab + i] = curr_max - curr_min;
     max = (max - curr_max) / 256;
-    min = (max - curr_max) / 256;
+    min = (min - curr_min) / 256;
   }
 }
 
@@ -132,18 +133,31 @@ void Lyapunov::update_pixels()
 {
   cout << "in update Pixels" << endl;
   vector<uint32_t> pixels(m_size.w * m_size.h);
+  int red;
+  int green;
+  int blue;
+  int choix_tab;
+  int color;
+  double divider;
   for (int i = 0, size = m_size.w * m_size.h; i < size; ++i)
   {
     double exponent = m_exponents[i];
-    int red;
-    int green;
-    int blue;
-    int choix_tab = 0;
     if (exponent > 0)
+    {
+      choix_tab = 3;
+      divider = max_expo;
+      color = 3;
+    }
+    else
+    {
       choix_tab = 0;
-    red   = (int)(color_scale[choix_tab]      * exponent) + m_color_lyap[1];
-    green = (int)(color_scale[choix_tab + 1]  * exponent) + m_color_lyap[1];
-    blue  = (int)(color_scale[choix_tab + 2]  * exponent) + m_color_lyap[1];
+      divider = min_expo;
+      color = 1;
+    }
+    exponent = exponent / divider;
+    red   = (int)(color_scale[choix_tab]      * exponent) + m_color_lyap[color];
+    green = (int)(color_scale[choix_tab + 1]  * exponent) + m_color_lyap[color];
+    blue  = (int)(color_scale[choix_tab + 2]  * exponent) + m_color_lyap[color];
     set_pixel_RGB(pixels, i, red, green, blue);
   }
   update_texture(pixels);
@@ -220,6 +234,9 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
   int i, j;
   double a, b, exp_lyap, xn, rn;
 
+  min_expo = 0;
+  max_expo = 0;
+
   double a_start = m_current_region.get_from_x();
   double b_start = m_current_region.get_from_y();
   double scale_a = ((m_current_region.get_to_x() - a_start) / (double)width);
@@ -248,7 +265,14 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
         product[i] = log2(product[i]);
         exp_lyap += product[i];
       }
-      m_exponents[index] = exp_lyap / m_precision;
+      exp_lyap = exp_lyap / m_precision;
+      if (exp_lyap < - 30)
+        exp_lyap = min_expo;
+      else if (exp_lyap > 30)
+        exp_lyap = max_expo;
+      m_exponents[index] = exp_lyap;
+      min_expo = (exp_lyap < min_expo) ? exp_lyap : min_expo;
+      max_expo = (exp_lyap > max_expo) ? exp_lyap : max_expo;
     }
   }
 }
@@ -345,13 +369,8 @@ int main(int argc, char* argv[])
   Gtk::Main app(argc, argv);
   Menu m = Menu();
   Gtk::Main::run(m);
-  if (m.write_file() == 0)
-  {
-    Lyapunov lyapunov(1400, 1000, 1000, 1000);
-    lyapunov.generate();
-    lyapunov.start_loop();
-    return EXIT_SUCCESS;
-  }
-  else
-    return -1;
+  Lyapunov lyapunov(1400, 1000, 1000, 1000);
+  lyapunov.generate();
+  lyapunov.start_loop();
+  return 0;
 }

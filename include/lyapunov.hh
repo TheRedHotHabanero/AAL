@@ -43,6 +43,8 @@ class Lyapunov: WindowManager
     SDL_Rect m_size;
     Region m_current_region{0, 4, 0, 4};
     int m_precision{100};
+    double max_expo;
+    double min_expo;
     long m_last_move{get_current_time()};
     int m_current_color{0};
     bool m_stop_color{false};
