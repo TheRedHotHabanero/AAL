@@ -50,7 +50,7 @@ class Lyapunov: WindowManager
     bool m_stop_color{false};
     stack<Region> m_last_position;
     uint32_t m_color_lyap[4];
-    int color_scale[6];
+    int color_scale[12];
     void generate_sequence();
 
   public:

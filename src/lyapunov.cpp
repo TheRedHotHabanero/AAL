@@ -18,7 +18,7 @@ Lyapunov::Lyapunov(uint window_width, uint window_height,
   while (i < 4 && file >> str >> r >> g >> b)
   {
     m_color_lyap[i] = (r << 16u) + (g << 8u) + b;
-    cout << r << g << b << endl;
+    cout << r << " " << g << " " << b << endl;
     i++;
   }
 
@@ -118,12 +118,13 @@ void Lyapunov::set_color_scale(int tab, uint32_t max, uint32_t min)
 {
   int curr_max = max;
   int curr_min = min;
-  cout << endl << "begin" << max << " " << min << endl;
+  // cout << endl << "begin" << max << " " << min << endl;
   for (int i = 2; i > 0; i--)
   {
     curr_max = max % 256;
     curr_min = min % 256;
     color_scale[tab + i] = curr_max - curr_min;
+    color_scale[tab + 6 + i] = curr_min;
     max = (max - curr_max) / 256;
     min = (min - curr_min) / 256;
   }
@@ -137,7 +138,6 @@ void Lyapunov::update_pixels()
   int green;
   int blue;
   int choix_tab;
-  int color;
   double divider;
   for (int i = 0, size = m_size.w * m_size.h; i < size; ++i)
   {
@@ -146,18 +146,16 @@ void Lyapunov::update_pixels()
     {
       choix_tab = 3;
       divider = max_expo;
-      color = 3;
     }
     else
     {
       choix_tab = 0;
       divider = min_expo;
-      color = 1;
     }
     exponent = exponent / divider;
-    red   = (int)(color_scale[choix_tab]      * exponent) + m_color_lyap[color];
-    green = (int)(color_scale[choix_tab + 1]  * exponent) + m_color_lyap[color];
-    blue  = (int)(color_scale[choix_tab + 2]  * exponent) + m_color_lyap[color];
+    red   = (int)(color_scale[choix_tab]      * exponent) + color_scale[choix_tab + 6];
+    green = (int)(color_scale[choix_tab + 1]  * exponent) + color_scale[choix_tab + 7];
+    blue  = (int)(color_scale[choix_tab + 2]  * exponent) + color_scale[choix_tab + 8];
     set_pixel_RGB(pixels, i, red, green, blue);
   }
   update_texture(pixels);
@@ -343,6 +341,7 @@ void Lyapunov::on_keyboard_up(int c)
 
 void Lyapunov::on_keyboard_down(int c)
 {
+  double distance = 0;
   switch(c)
   {
     case SDLK_z:
@@ -356,7 +355,31 @@ void Lyapunov::on_keyboard_down(int c)
       break;
     case SDLK_q:
       rotate_horizontally();
-        break;
+      break;
+    case SDLK_RIGHT:
+      distance = (m_current_region.get_to_x() - m_current_region.get_from_x()) / 2;
+      m_current_region = {m_current_region.get_from_x() + distance, m_current_region.get_to_x() + distance,
+                         m_current_region.get_from_y(), m_current_region.get_to_y()};
+      generate(m_current_region);
+      break;
+    case SDLK_LEFT:
+      distance = (m_current_region.get_to_x() - m_current_region.get_from_x()) / ( - 2 );
+      m_current_region = {m_current_region.get_from_x() + distance, m_current_region.get_to_x() + distance,
+                         m_current_region.get_from_y(), m_current_region.get_to_y()};
+      generate(m_current_region);
+      break;
+    case SDLK_DOWN:
+      distance= (m_current_region.get_to_y() - m_current_region.get_from_y()) / 2;
+      m_current_region = {m_current_region.get_from_x(), m_current_region.get_to_x(),
+                         m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
+      generate(m_current_region);
+      break;
+    case SDLK_UP:
+      distance = (m_current_region.get_to_y() - m_current_region.get_from_y()) / ( - 2);
+      m_current_region = {m_current_region.get_from_x(), m_current_region.get_to_x(),
+                         m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
+      generate(m_current_region);
+      break;
   }
   blit_texture();
   update_screen();
