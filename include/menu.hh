@@ -37,10 +37,10 @@ class Menu: public Gtk::Window
     Gtk::ColorButton m_color_button_pos_e;
     Gtk::SpinButton m_select_precision;
     Gtk::Grid grid;
-    uint precision = 100;
+    int precision;
 
   public:
-    Menu();
+    Menu(int precision);
     void set_color_max_neg_expo();
     void set_color_min_neg_expo();
     void set_color_min_pos_expo();

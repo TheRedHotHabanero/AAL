@@ -43,29 +43,29 @@ class Lyapunov: WindowManager
     SDL_Rect m_size;
     Region m_current_region{0, 4, 0, 4};
     int m_precision{100};
-    double max_expo;
-    double min_expo;
+    double max_expo{};
+    double min_expo{};
     long m_last_move{get_current_time()};
     stack<Region> m_last_position;
-    uint32_t m_color_lyap[4];
-    int color_scale[12];
+    uint32_t m_color_lyap[4]{};
+    int color_scale[12]{};
     int m_zoom_precision = 400;
     void generate_sequence();
 
   public:
     Lyapunov(uint lyap_width, uint lyap_height);
     void generate(Region region = {0, 4, 0, 4});
-    void generate_part(uint x_start, uint y_start, uint x_end, uint y_end);
+    void generate_part(int x_start, int y_start, int x_end, int y_end);
     Region get_region(int from_x, int to_x, int from_y, int to_y);
     void on_resized(uint new_width, uint new_height) override;
     void set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b);
-    void set_color_scale(int tab, uint32_t max, uint32_t min);
+    void set_color_scale(int tab, int max, int min);
     void draw_zoom();
     void validate_region(int& x, int& y, int& w, int& h);
     void update_pixels();
     void update_settings();
     void on_mouse_click(int mouse_x, int mouse_y, int button) override;
-    void on_mouse_move(int x, int y) override;
+    void on_mouse_move() override;
     void on_mouse_wheel(int amount) override;
     void on_keyboard_down(int c) override;
     void start_loop();

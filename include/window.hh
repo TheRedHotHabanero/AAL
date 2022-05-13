@@ -41,7 +41,7 @@ class WindowManager
     const SDL_Rect& get_mouse_position() const;
     virtual void on_resized(uint new_width, uint new_height) = 0;
     virtual void on_mouse_click(int x, int y, int button) = 0;
-    virtual void on_mouse_move(int x, int y) = 0;
+    virtual void on_mouse_move() = 0;
     virtual void on_mouse_wheel(int amount) = 0;
     virtual void on_keyboard_down(int c) = 0;
     void event_loop();

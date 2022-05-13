@@ -68,7 +68,7 @@ void WindowManager::event_loop()
         case SDL_MOUSEMOTION:
           m_mouse_position.x = event.motion.x;
           m_mouse_position.y = event.motion.y;
-          on_mouse_move(event.motion.x, event.motion.y);
+          on_mouse_move();
           break;
         case SDL_KEYDOWN:
           on_keyboard_down(event.key.keysym.sym);

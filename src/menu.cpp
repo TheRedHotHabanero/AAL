@@ -1,6 +1,6 @@
 #include "../include/menu.hh"
 
-Menu::Menu() : menu_write()
+Menu::Menu(int precision): menu_write()
 {
   Menu::set_position(Gtk::WIN_POS_CENTER);
   Menu::resize(450, 300);
@@ -63,7 +63,7 @@ Menu::Menu() : menu_write()
   m_color_button_pos_s.signal_color_set().connect(sigc::mem_fun(*this, &Menu::set_color_min_pos_expo));
   m_color_button_pos_e.signal_color_set().connect(sigc::mem_fun(*this, &Menu::set_color_max_pos_expo));
 
-  Glib::RefPtr<Gtk::Adjustment> limits = Gtk::Adjustment::create(100, MINSPIN, MAXSPIN, 1);
+  Glib::RefPtr<Gtk::Adjustment> limits = Gtk::Adjustment::create(precision, MINSPIN, MAXSPIN, 1);
   label_precision = Gtk::AccelLabel("Точность");
   m_select_precision.set_adjustment(limits);
   m_select_precision.set_numeric();

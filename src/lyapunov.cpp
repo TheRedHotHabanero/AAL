@@ -27,6 +27,7 @@ void Lyapunov::update_settings()
   {
     m_color_lyap[i] = (r << 16u) + (g << 8u) + b;
     cout << r << " " << g << " " << b << endl;
+    m_color_lyap[i] = ((uint)r << 16u) + ((uint)g << 8u) + b;
     i++;
   }
   set_color_scale(0, m_color_lyap[1], m_color_lyap[0]); //Neg
@@ -58,7 +59,7 @@ Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
 void Lyapunov::set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b)
 { pixels[index] = (r << 16u) + (g << 8u) + b; }
 
-void Lyapunov::set_color_scale(int tab, uint32_t max, uint32_t min)
+void Lyapunov::set_color_scale(int tab, int max, int min)
 {
   int curr_max = max;
   int curr_min = min;
@@ -107,7 +108,6 @@ void Lyapunov::generate_sequence()
 {
   string sequence;
   bool error = false;
-  cout << m_sequence.length() << endl;
   for (char i : m_sequence)
   {
     switch (i)
@@ -144,7 +144,7 @@ void Lyapunov::generate(Region region)
     if (fx < 0)
     {
       fx = 0;
-      tx = 0 + length;
+      tx = length;
     }
     else if(tx > 4)
     {
@@ -180,18 +180,15 @@ void Lyapunov::generate(Region region)
   for (auto& th: threads)
     th.join();
   update_pixels();
-  SDL_Rect mouse_pos = get_mouse_position();
   draw_zoom();
 }
 
-void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
+void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
 {
-  uint width  = m_size.w;
-  uint height = m_size.h;
-  uint number_of_products;
+  int width  = m_size.w;
+  int height = m_size.h;
 
-  uint x, y, y_pos, index;
-  int i, j;
+  int x, y, y_pos, index, i, j;
   double a, b, exp_lyap, xn, rn;
 
   min_expo = 0;
@@ -229,7 +226,7 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
       expo = log2(expo);
       exp_lyap += expo;
     }
-    exp_lyap = exp_lyap / m_precision;
+    exp_lyap /= m_precision;
     if (exp_lyap < - 30)
       exp_lyap = min_expo;
     else if (exp_lyap > 30)
@@ -280,7 +277,7 @@ void Lyapunov::on_mouse_click(int mouse_x, int mouse_y, int button)
   }
 }
 
-void Lyapunov::on_mouse_move(int x, int y)
+void Lyapunov::on_mouse_move()
 {
   long time = get_current_time();
   if (time - m_last_move < 16)
@@ -346,7 +343,7 @@ void Lyapunov::on_keyboard_down(int c)
     {
       string seq = m_sequence;
       int precise = m_precision;
-      Menu k = Menu();
+      Menu k = Menu(m_precision);
       k.set_color_button();
       Gtk::Main::run(k);
       update_settings();
@@ -355,8 +352,8 @@ void Lyapunov::on_keyboard_down(int c)
         m_sequence = seq;
       generate_sequence();
 
-      if (seq.compare(m_sequence) != 0 || precise != m_precision)
-        generate();
+      if (seq != m_sequence || precise != m_precision)
+        generate(m_current_region);
 
       update_pixels();
       blit_texture();
@@ -373,7 +370,7 @@ void Lyapunov::on_keyboard_down(int c)
 void Lyapunov::draw_zoom()
 {
   SDL_Rect mouse = get_mouse_position();
-  int shift = m_zoom_precision >> 1;
+  int shift = (int)((uint)m_zoom_precision >> 1u);
   int x = mouse.x - shift;
   int y = mouse.y - shift;
   int w = m_zoom_precision;
