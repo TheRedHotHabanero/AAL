@@ -123,7 +123,14 @@ void Lyapunov::generate_sequence()
     cout  << "An error in the construction of the sequence has been detected. \
               Sequence must contains only A and B. Default Sequence : AB" 
           << endl;
-    m_sequence = "AB";
+    int length_sequence = rand() % m_precision;
+    int char_rand;
+    m_sequence = "";
+    for (int i = 0; i < length_sequence; ++i)
+    {
+      char_rand = rand() % 2;
+      m_sequence += "Sequence : " << m_sequence << endl;
+    }
   }
   sequence = m_sequence;
   while((int)m_sequence.length() < m_precision)
