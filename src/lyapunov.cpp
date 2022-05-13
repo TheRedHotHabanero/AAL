@@ -4,20 +4,14 @@
 // color is blue is exp() > 0
 // сalculation of the Lyapunov exponent through https://www.youtube.com/watch?v=8xZyA09zRXY
 
-Lyapunov::Lyapunov(uint window_width, uint window_height,
-                   uint lyap_width, uint lyap_height)
-                   : WindowManager(window_width, window_height), m_exponents(lyap_width * lyap_height), m_size(), m_last_position{}
+Lyapunov::Lyapunov(uint lyap_width, uint lyap_height)
+                   : WindowManager(), m_exponents(lyap_width * lyap_height), m_size(), m_last_position{}
 {
   update_settings();
+  generate_sequence();
   m_size.w = (int)lyap_width;
   m_size.h = (int)lyap_height;
-  SDL_Rect texture_position;
-  texture_position.w = (int)(window_width < lyap_width ? window_width : lyap_width);
-  texture_position.h = (int)(window_height < lyap_height ? window_height : lyap_height);
-  texture_position.w = texture_position.h = texture_position.w < texture_position.h ? texture_position.w : texture_position.h;
-  texture_position.x = (int) ((window_width >> 1u) - ((uint)texture_position.w >> 1u));
-  texture_position.y = (int) ((window_height >> 1u) - ((uint)texture_position.h >> 1u));
-  init_render(m_size, texture_position);
+  init_render(m_size);
 }
 
 void Lyapunov::update_settings()
@@ -46,7 +40,6 @@ void Lyapunov::update_settings()
   file >> str >> seq;
   m_sequence = seq;
   cout << m_sequence << endl;
-  generate_sequence();
 }
 
 Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
@@ -359,27 +352,12 @@ void Lyapunov::on_mouse_wheel(int amount)
   draw_zoom();
 }
 
-void Lyapunov::on_tick()
-{}
-
 void Lyapunov::on_keyboard_up(int c) {}
 
 void Lyapunov::on_keyboard_down(int c)
 {
   switch(c)
   {
-    case SDLK_z:
-      add_degree(90);
-      break;
-    case SDLK_s:
-      add_degree(-90);
-      break;
-    case SDLK_d:
-      rotate_vertically();
-      break;
-    case SDLK_q:
-      rotate_horizontally();
-      break;
     case SDLK_RIGHT:
     {
       double distance = (m_current_region.get_to_x() - m_current_region.get_from_x()) / 2;
@@ -423,6 +401,10 @@ void Lyapunov::on_keyboard_down(int c)
       k.set_color_button();
       Gtk::Main::run(k);
       update_settings();
+
+      if (m_sequence.length() == 0)
+        m_sequence = seq;
+      generate_sequence();
 
       if (seq.compare(m_sequence) != 0 || precise != m_precision)
         generate();
@@ -474,7 +456,7 @@ int main(int argc, char* argv[])
   Menu m = Menu();
   Gtk::Main::run(m);
   m.write_file();
-  Lyapunov lyapunov(1400, 1000, 1000, 1000);
+  Lyapunov lyapunov(1000, 1000);
   lyapunov.generate();
   lyapunov.start_loop();
   return 0;

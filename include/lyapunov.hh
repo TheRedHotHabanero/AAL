@@ -46,8 +46,6 @@ class Lyapunov: WindowManager
     double max_expo;
     double min_expo;
     long m_last_move{get_current_time()};
-    int m_current_color{0};
-    bool m_stop_color{false};
     stack<Region> m_last_position;
     uint32_t m_color_lyap[4];
     int color_scale[12];
@@ -55,8 +53,7 @@ class Lyapunov: WindowManager
     void generate_sequence();
 
   public:
-    Lyapunov( uint window_width, uint window_height, 
-              uint lyap_width, uint lyap_height);
+    Lyapunov(uint lyap_width, uint lyap_height);
     void generate(Region region = {0, 4, 0, 4});
     void generate_part(uint x_start, uint y_start, uint x_end, uint y_end);
     Region get_region(int from_x, int to_x, int from_y, int to_y);
@@ -73,7 +70,6 @@ class Lyapunov: WindowManager
     void on_mouse_wheel(int amount) override;
     void on_keyboard_up(int c) override;
     void on_keyboard_down(int c) override;
-    void on_tick() override;
     void start_loop();
 };
 
