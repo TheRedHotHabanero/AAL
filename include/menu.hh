@@ -54,6 +54,7 @@ class Menu: public Gtk::Window
     void write_file();
     void close_button();
     void set_color_button();
+    void validate();
 };
 
 #endif // __SRC_MENU_HH__

@@ -48,9 +48,9 @@ class WindowManager
     SDL_RendererFlip get_flip();
     void set_flip(SDL_RendererFlip flip);
     virtual void on_resized(uint new_width, uint new_height) = 0;
-    virtual void on_mouse_click(uint x, uint y, uint button) = 0;
-    virtual void on_mouse_move(uint x, uint y) = 0;
-    virtual void on_mouse_wheel() = 0;
+    virtual void on_mouse_click(int x, int y, int button) = 0;
+    virtual void on_mouse_move(int x, int y) = 0;
+    virtual void on_mouse_wheel(int amount) = 0;
     virtual void on_keyboard_up(int c) = 0;
     virtual void on_keyboard_down(int c) = 0;
     virtual void on_tick() = 0;

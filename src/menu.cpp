@@ -77,12 +77,18 @@ Menu::Menu() : menu_write()
   label_sequence = Gtk::AccelLabel("Последовательность А-В");
   label_sequence.set_xalign(0.195);
   grid.attach(label_sequence, 0, 5, 4, 1);
-  menu_write.signal_clicked().connect(sigc::mem_fun(*this, &Menu::write_file));
+  menu_write.signal_clicked().connect(sigc::mem_fun(*this, &Menu::validate));
   menu_write.set_label("Подтверждение");
   grid.attach(menu_write, 8, 6, 2, 1);
   Menu::text_area();
   grid.show_all();
   add(grid);
+}
+
+void Menu::validate()
+{
+  write_file();
+  close();
 }
 
 void Menu::set_color_button()

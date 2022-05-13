@@ -51,7 +51,7 @@ class Lyapunov: WindowManager
     stack<Region> m_last_position;
     uint32_t m_color_lyap[4];
     int color_scale[12];
-    long last_srreenshot = 0;
+    int m_zoom_precision = 400;
     void generate_sequence();
 
   public:
@@ -64,11 +64,13 @@ class Lyapunov: WindowManager
     void set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b);
     void set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double s, double v);
     void set_color_scale(int tab, uint32_t max, uint32_t min);
+    void draw_zoom();
+    void validate_region(int& x, int& y, int& w, int& h);
     void update_pixels();
     void update_settings();
-    void on_mouse_click(uint x, uint y, uint button) override;
-    void on_mouse_move(uint x, uint y) override;
-    void on_mouse_wheel() override;
+    void on_mouse_click(int mouse_x, int mouse_y, int button) override;
+    void on_mouse_move(int x, int y) override;
+    void on_mouse_wheel(int amount) override;
     void on_keyboard_up(int c) override;
     void on_keyboard_down(int c) override;
     void on_tick() override;
