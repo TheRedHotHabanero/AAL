@@ -3,4 +3,4 @@ color_neg_-= 49 30 0
 color_pos_-= 0 192 255
 color_pos_+= 0 28 85
 precision= 100
-sequence= BA
+sequence= AB

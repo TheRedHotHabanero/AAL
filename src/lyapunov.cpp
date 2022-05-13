@@ -58,58 +58,6 @@ Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
 void Lyapunov::set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b)
 { pixels[index] = (r << 16u) + (g << 8u) + b; }
 
-// https://ru.wikipedia.org/wiki/HSV_(%D1%86%D0%B2%D0%B5%D1%82%D0%BE%D0%B2%D0%B0%D1%8F_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C)
-void Lyapunov::set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double s, double v)
-{
-  h %= 360;
-  int hi = (int) (h / 60) % 6;
-  switch(hi)
-  {
-    case 0:
-    {
-      set_pixel_RGB(pixels, index, (int) (v * 255), //v
-                    (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255), //n
-                    (int) (v * (1 - s) * 255)); //l
-      break;
-    }
-    case 1:
-    {
-      set_pixel_RGB(pixels, index, (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255), //m
-                    (int) (v * 255), //v
-                    (int) (v * (1 - s) * 255)); //l
-      break;
-    }
-    case 2:
-    {
-      set_pixel_RGB(pixels, index, (int) (v * (1 - s) * 255), //l
-                    (int) (v * 255), //v
-                    (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255)); //n
-      break;
-    }
-    case 3:
-    {
-      set_pixel_RGB(pixels, index, (int) (v * (1 - s) * 255), //l
-                    (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255), //m
-                    (int) (v * 255)); //v
-      break;
-    }
-    case 4:
-    {
-      set_pixel_RGB(pixels, index, (int) (v * (1 - (1 - (h / 60.0 - (double)hi)) * s) * 255), //n
-                    (int) (v * (1 - s) * 255), //l
-                    (int) (v * 255)); //v
-      break;
-    }
-    case 5:
-    {
-      set_pixel_RGB(pixels, index, (int) (v * 255), //v
-                    (int) (v * (1 - s) * 255), //l
-                    (int) (v * (1 - (h / 60.0 - (double)hi) * s) * 255)); //m
-    break;
-    }
-  }
-}
-
 void Lyapunov::set_color_scale(int tab, uint32_t max, uint32_t min)
 {
   int curr_max = max;
@@ -253,39 +201,42 @@ void Lyapunov::generate_part(uint x_start, uint y_start, uint x_end, uint y_end)
   double b_start = m_current_region.get_from_y();
   double scale_a = ((m_current_region.get_to_x() - a_start) / (double)width);
   double scale_b = ((m_current_region.get_to_y() - b_start) / (double)height);
+  double expo;
   for (y = y_start; y < y_end; ++y)
   {
     y_pos = y * width;
     for (x = x_start; x < x_end; ++x)
     {
+      int i = 0;
       index = y_pos + x;
       a = a_start + x * scale_a;
       b = b_start + y * scale_b;
       exp_lyap = 0;
       xn = X0;
-      number_of_products = m_precision / 10;
-      vector<double> product(number_of_products);
-      for (i = 0; i < number_of_products; ++i)
+      while (i < m_precision)
       {
-        product[i] = 1;
-        for (j = i * number_of_products; j < (i + 1) * number_of_products; ++j)
+        expo = 1;
+        while(expo < 1e100)
         {
-          rn = m_sequence[j] == 'A' ? a : b;
+          rn = m_sequence[i] == 'A' ? a : b;
           xn = rn * xn * (1 - xn);
-          product[i] *= (fabs(rn * (1 - 2 * xn)));
+          expo *= (fabs(rn * (1 - 2 * xn)));
+          ++i;
+          if (i >= m_precision)
+            break;
         }
-        product[i] = log2(product[i]);
-        exp_lyap += product[i];
       }
-      exp_lyap = exp_lyap / m_precision;
-      if (exp_lyap < - 30)
-        exp_lyap = min_expo;
-      else if (exp_lyap > 30)
-        exp_lyap = max_expo;
-      m_exponents[index] = exp_lyap;
-      min_expo = (exp_lyap < min_expo) ? exp_lyap : min_expo;
-      max_expo = (exp_lyap > max_expo) ? exp_lyap : max_expo;
+      expo = log2(expo);
+      exp_lyap += expo;
     }
+    exp_lyap = exp_lyap / m_precision;
+    if (exp_lyap < - 30)
+      exp_lyap = min_expo;
+    else if (exp_lyap > 30)
+      exp_lyap = max_expo;
+    m_exponents[index] = exp_lyap;
+    min_expo = (exp_lyap < min_expo) ? exp_lyap : min_expo;
+    max_expo = (exp_lyap > max_expo) ? exp_lyap : max_expo;
   }
 }
 
@@ -346,13 +297,11 @@ void Lyapunov::on_mouse_wheel(int amount)
   int max = (int) (get_texture_position().w * (3 / 4.0));
   m_zoom_precision += amount * 10;
   if (m_zoom_precision < 5)
-    m_zoom_precision = 10;
+    m_zoom_precision = 5;
   else if (m_zoom_precision > max)
     m_zoom_precision = max;
   draw_zoom();
 }
-
-void Lyapunov::on_keyboard_up(int c) {}
 
 void Lyapunov::on_keyboard_down(int c)
 {

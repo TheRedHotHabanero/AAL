@@ -59,7 +59,6 @@ class Lyapunov: WindowManager
     Region get_region(int from_x, int to_x, int from_y, int to_y);
     void on_resized(uint new_width, uint new_height) override;
     void set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b);
-    void set_pixel_HSV(vector<uint32_t>& pixels, uint index, int h, double s, double v);
     void set_color_scale(int tab, uint32_t max, uint32_t min);
     void draw_zoom();
     void validate_region(int& x, int& y, int& w, int& h);
@@ -68,7 +67,6 @@ class Lyapunov: WindowManager
     void on_mouse_click(int mouse_x, int mouse_y, int button) override;
     void on_mouse_move(int x, int y) override;
     void on_mouse_wheel(int amount) override;
-    void on_keyboard_up(int c) override;
     void on_keyboard_down(int c) override;
     void start_loop();
 };

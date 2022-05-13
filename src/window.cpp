@@ -70,9 +70,6 @@ void WindowManager::event_loop()
           m_mouse_position.y = event.motion.y;
           on_mouse_move(event.motion.x, event.motion.y);
           break;
-        case SDL_KEYUP:
-          on_keyboard_up(event.key.keysym.sym);
-          break;
         case SDL_KEYDOWN:
           on_keyboard_down(event.key.keysym.sym);
 		      break;
@@ -116,6 +113,7 @@ const SDL_Rect& WindowManager::get_mouse_position() const
 
 void WindowManager::screen_shot() const
 {
+  blit_texture();
   long current_time = get_current_time();
   string file_name = to_string(current_time);
   file_name = "screenshot/" + file_name + ".bmp";

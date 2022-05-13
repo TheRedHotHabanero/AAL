@@ -43,7 +43,6 @@ class WindowManager
     virtual void on_mouse_click(int x, int y, int button) = 0;
     virtual void on_mouse_move(int x, int y) = 0;
     virtual void on_mouse_wheel(int amount) = 0;
-    virtual void on_keyboard_up(int c) = 0;
     virtual void on_keyboard_down(int c) = 0;
     void event_loop();
     const SDL_Rect& get_texture_position() const;

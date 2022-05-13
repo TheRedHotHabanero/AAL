@@ -17,7 +17,7 @@ using std::ifstream;
 using std::stringstream;
 
 const int MINSPIN = 10;
-const int MAXSPIN = 500;
+const int MAXSPIN = 10000;
 
 class Menu: public Gtk::Window
 {
