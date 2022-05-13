@@ -396,12 +396,12 @@ void Lyapunov::validate_region(int& x, int& y, int& w, int& h)
 
 int main(int argc, char* argv[])
 {
+  srand(time(nullptr));
   (void)argc;
   (void)argv;
   Gtk::Main app(argc, argv);
   Menu m = Menu();
   Gtk::Main::run(m);
-  m.write_file();
   Lyapunov lyapunov(1000, 1000);
   lyapunov.generate();
   lyapunov.start_loop();
