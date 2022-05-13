@@ -58,7 +58,6 @@ class Lyapunov: WindowManager
     void generate_part(int x_start, int y_start, int x_end, int y_end);
     Region get_region(int from_x, int to_x, int from_y, int to_y);
     void on_resized(uint new_width, uint new_height) override;
-    void set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b);
     void set_color_scale(int tab, int max, int min);
     void draw_zoom();
     void validate_region(int& x, int& y, int& w, int& h);

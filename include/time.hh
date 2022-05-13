@@ -5,8 +5,6 @@
 #include <chrono>
 #include <string>
 
-class Time {};
-
 long get_current_time();
 
 #endif // __INCLUDE_TIME_HH__

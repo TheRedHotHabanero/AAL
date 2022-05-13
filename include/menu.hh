@@ -52,7 +52,6 @@ class Menu: public Gtk::Window
     void text_area();
     void new_precision();
     void write_file();
-    void close_button();
     void set_color_button();
     void validate();
 };

@@ -56,9 +56,6 @@ Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
   return region;
 }
 
-void Lyapunov::set_pixel_RGB(vector<uint32_t>& pixels, uint index, uint r, uint g, uint b)
-{ pixels[index] = (r << 16u) + (g << 8u) + b; }
-
 void Lyapunov::set_color_scale(int tab, int max, int min)
 {
   int curr_max = max;
@@ -77,14 +74,15 @@ void Lyapunov::set_color_scale(int tab, int max, int min)
 void Lyapunov::update_pixels()
 {
   vector<uint32_t> pixels(m_size.w * m_size.h);
-  int red;
-  int green;
-  int blue;
-  int choix_tab;
+  uint red;
+  uint green;
+  uint blue;
+  uint choix_tab;
   double divider;
+  double exponent;
   for (int i = 0, size = m_size.w * m_size.h; i < size; ++i)
   {
-    double exponent = m_exponents[i];
+    exponent = m_exponents[i];
     if (exponent > 0)
     {
       choix_tab = 3;
@@ -95,11 +93,11 @@ void Lyapunov::update_pixels()
       choix_tab = 0;
       divider = min_expo;
     }
-    exponent = exponent / divider;
+    exponent /= divider;
     red   = (int)(color_scale[choix_tab]      * exponent) + color_scale[choix_tab + 6];
     green = (int)(color_scale[choix_tab + 1]  * exponent) + color_scale[choix_tab + 7];
     blue  = (int)(color_scale[choix_tab + 2]  * exponent) + color_scale[choix_tab + 8];
-    set_pixel_RGB(pixels, i, red, green, blue);
+    pixels[i] = (red << 16u) + (green << 8u) + blue;
   }
   update_texture(pixels);
 }
@@ -164,7 +162,7 @@ void Lyapunov::generate(Region region)
     m_current_region = Region(fx, tx, fy, ty);
   }
   else
-    m_current_region = Region{region};
+    m_current_region = region;
 
   if (m_sequence.empty())
     generate_sequence();
@@ -198,7 +196,7 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
   double b_start = m_current_region.get_from_y();
   double scale_a = ((m_current_region.get_to_x() - a_start) / (double)width);
   double scale_b = ((m_current_region.get_to_y() - b_start) / (double)height);
-  double expo;
+  double expo = 1e100;
   for (y = y_start; y < y_end; ++y)
   {
     y_pos = y * width;
@@ -213,7 +211,7 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
       while (i < m_precision)
       {
         expo = 1;
-        while(expo < 1e100)
+        while(expo < max)
         {
           rn = m_sequence[i] == 'A' ? a : b;
           xn = rn * xn * (1 - xn);
@@ -223,8 +221,7 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
             break;
         }
       }
-      expo = log2(expo);
-      exp_lyap += expo;
+      exp_lyap += log2(expo);
     }
     exp_lyap /= m_precision;
     if (exp_lyap < - 30)

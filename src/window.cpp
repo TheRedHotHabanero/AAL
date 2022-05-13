@@ -14,7 +14,7 @@ WindowManager::WindowManager(): m_quit{false},
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
     throw runtime_error(SDL_GetError());
   m_window = SDL_CreateWindow("Lyapunov Fractals", SDL_WINDOWPOS_UNDEFINED, 
-                              SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
+                              SDL_WINDOWPOS_UNDEFINED, 500, 500, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
   if (m_window == nullptr)
     throw runtime_error(SDL_GetError());
 }
@@ -27,6 +27,7 @@ void WindowManager::init_render(SDL_Rect size)
   m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, size.w, size.h);
   if(m_texture == nullptr)
     throw runtime_error(SDL_GetError());
+  SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
   m_pitch = size.h;
 }
 
@@ -40,12 +41,7 @@ void WindowManager::update_texture(vector<uint32_t>& pixels) const
 { SDL_UpdateTexture(m_texture, nullptr, pixels.data(), (int)(m_pitch * sizeof(uint32_t))); }
 
 void WindowManager::blit_texture() const
-{
-  SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
-  SDL_RenderClear(m_renderer);
-  SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
-  SDL_RenderCopy(m_renderer, m_texture, nullptr, &m_texture_position);
-}
+{ SDL_RenderCopy(m_renderer, m_texture, nullptr, &m_texture_position); }
 
 void WindowManager::update_screen() const
 { SDL_RenderPresent(m_renderer); }
