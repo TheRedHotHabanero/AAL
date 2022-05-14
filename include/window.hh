@@ -32,7 +32,7 @@ class WindowManager
     ~WindowManager();
     void init_render(SDL_Rect size);
     void draw_rect(int x, int y, int w, int h);
-    void update_texture(vector<uint32_t>& pixels) const;
+    void update_texture(vector<Uint32>& pixels) const;
     void blit_texture() const;
     void update_screen() const;
     void screen_shot() const;

@@ -1,9 +1,5 @@
 #include "../include/lyapunov.hh"
 
-// color is yellow is exp() < 0
-// color is blue is exp() > 0
-// сalculation of the Lyapunov exponent through https://www.youtube.com/watch?v=8xZyA09zRXY
-
 Lyapunov::Lyapunov(): WindowManager(), m_exponents(get_max_size() * get_max_size()), m_size(), m_last_position{}
 {
   update_settings();
@@ -50,8 +46,8 @@ Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y) const
 
 void Lyapunov::set_color_scale(int tab, int max, int min)
 {
-  int curr_max;
-  int curr_min;
+  int curr_max = 0;
+  int curr_min = 0;
   for (int i = 2; i >= 0; --i)
   {
     curr_max = max % 256;
@@ -65,7 +61,7 @@ void Lyapunov::set_color_scale(int tab, int max, int min)
 
 void Lyapunov::update_pixels() const
 {
-  vector<uint32_t> pixels(m_size.w * m_size.h);
+  vector<Uint32> pixels(m_size.w * m_size.h);
   uint choice;
   double divider;
   double exponent;
@@ -136,6 +132,7 @@ void Lyapunov::generate(Region region)
       x2 = 4;
       x1 = 4 - length;
     }
+
     if (y1 < 0)
     {
       y1 = 0;
@@ -207,19 +204,19 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
           if (++i >= m_precision)
             break;
         }
+        exp_lyap += log2(expo);
       }
-      exp_lyap += log2(expo);
+      exp_lyap /= m_precision;
+      if (exp_lyap < - 10)
+        exp_lyap = m_min_expo;
+      else if (exp_lyap > 10)
+        exp_lyap = m_max_expo;
+      m_exponents[index] = exp_lyap;
+      if (exp_lyap < m_min_expo)
+        m_min_expo = exp_lyap;
+      if (exp_lyap > m_max_expo)
+        m_max_expo = exp_lyap;
     }
-    exp_lyap /= m_precision;
-    if (exp_lyap < - 10)
-      exp_lyap = m_min_expo;
-    else if (exp_lyap > 10)
-      exp_lyap = m_max_expo;
-    m_exponents[index] = exp_lyap;
-    if(exp_lyap < m_min_expo)
-      m_min_expo = exp_lyap;
-    if(exp_lyap > m_max_expo)
-      m_max_expo = exp_lyap;
   }
 }
 

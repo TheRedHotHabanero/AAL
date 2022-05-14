@@ -37,8 +37,8 @@ void WindowManager::draw_rect(int x, int y, int w, int h)
   SDL_RenderDrawRect(m_renderer, &rect);
 }
 
-void WindowManager::update_texture(vector<uint32_t>& pixels) const
-{ SDL_UpdateTexture(m_texture, nullptr, pixels.data(), (int)(m_pitch * sizeof(uint32_t))); }
+void WindowManager::update_texture(vector<Uint32>& pixels) const
+{ SDL_UpdateTexture(m_texture, nullptr, pixels.data(), (int)(m_pitch * sizeof(Uint32))); }
 
 void WindowManager::blit_texture() const
 { SDL_RenderCopy(m_renderer, m_texture, nullptr, &m_texture_position); }

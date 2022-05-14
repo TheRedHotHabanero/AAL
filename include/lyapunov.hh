@@ -45,7 +45,7 @@ class Lyapunov: WindowManager
     double m_min_expo{};
     long m_last_move{get_current_time()};
     stack<Region> m_last_position;
-    uint32_t m_color_lyap[4]{};
+    Uint32 m_color_lyap[4]{};
     int m_color_scale[12]{};
     int m_zoom_precision = 400;
     void generate_sequence();
