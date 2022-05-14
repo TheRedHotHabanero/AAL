@@ -4,13 +4,11 @@
 // color is blue is exp() > 0
 // сalculation of the Lyapunov exponent through https://www.youtube.com/watch?v=8xZyA09zRXY
 
-Lyapunov::Lyapunov(uint lyap_width, uint lyap_height)
-                   : WindowManager(), m_exponents(lyap_width * lyap_height), m_size(), m_last_position{}
+Lyapunov::Lyapunov(): WindowManager(), m_exponents(get_max_size() * get_max_size()), m_size(), m_last_position{}
 {
   update_settings();
   generate_sequence();
-  m_size.w = (int)lyap_width;
-  m_size.h = (int)lyap_height;
+  m_size.h = m_size.w = get_max_size();
   init_render(m_size);
 }
 
@@ -22,28 +20,22 @@ void Lyapunov::update_settings()
   int g;
   int b;
   int i = 0;
-  int precise;
+  int precision;
   while (i < 4 && file >> str >> r >> g >> b)
-  {
-    m_color_lyap[i] = (r << 16u) + (g << 8u) + b;
-    cout << r << " " << g << " " << b << endl;
-    m_color_lyap[i] = ((uint)r << 16u) + ((uint)g << 8u) + b;
-    i++;
-  }
+    m_color_lyap[i++] = ((uint)r << 16u) + ((uint)g << 8u) + b;
+
   set_color_scale(0, m_color_lyap[1], m_color_lyap[0]); //Neg
   set_color_scale(3, m_color_lyap[3], m_color_lyap[2]); //Pos
 
-  file >> str >> precise;
-  m_precision = precise;
-  cout << m_precision << endl;
+  file >> str >> precision;
+  m_precision = precision;
 
   string seq;
   file >> str >> seq;
   m_sequence = seq;
-  cout << m_sequence << endl;
 }
 
-Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
+Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y) const
 {
   SDL_Rect texture_position = get_texture_position();
   Region region
@@ -58,26 +50,23 @@ Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y)
 
 void Lyapunov::set_color_scale(int tab, int max, int min)
 {
-  int curr_max = max;
-  int curr_min = min;
-  for (int i = 2; i > 0; i--)
+  int curr_max;
+  int curr_min;
+  for (int i = 2; i >= 0; --i)
   {
     curr_max = max % 256;
     curr_min = min % 256;
-    color_scale[tab + i] = curr_max - curr_min;
-    color_scale[tab + 6 + i] = curr_min;
+    m_color_scale[tab + i] = curr_max - curr_min;
+    m_color_scale[tab + 6 + i] = curr_min;
     max = (max - curr_max) / 256;
     min = (min - curr_min) / 256;
   }
 }
 
-void Lyapunov::update_pixels()
+void Lyapunov::update_pixels() const
 {
   vector<uint32_t> pixels(m_size.w * m_size.h);
-  uint red;
-  uint green;
-  uint blue;
-  uint choix_tab;
+  uint choice;
   double divider;
   double exponent;
   for (int i = 0, size = m_size.w * m_size.h; i < size; ++i)
@@ -85,26 +74,24 @@ void Lyapunov::update_pixels()
     exponent = m_exponents[i];
     if (exponent > 0)
     {
-      choix_tab = 3;
-      divider = max_expo;
+      choice = 3;
+      divider = m_max_expo;
     }
     else
     {
-      choix_tab = 0;
-      divider = min_expo;
+      choice = 0;
+      divider = m_min_expo;
     }
     exponent /= divider;
-    red   = (int)(color_scale[choix_tab]      * exponent) + color_scale[choix_tab + 6];
-    green = (int)(color_scale[choix_tab + 1]  * exponent) + color_scale[choix_tab + 7];
-    blue  = (int)(color_scale[choix_tab + 2]  * exponent) + color_scale[choix_tab + 8];
-    pixels[i] = (red << 16u) + (green << 8u) + blue;
+    pixels[i] = (((uint) (m_color_scale[choice]     * exponent) + m_color_scale[choice + 6]) << 16u) + //red
+                (((uint) (m_color_scale[choice + 1] * exponent) + m_color_scale[choice + 7]) << 8u) + //green
+                (m_color_scale[choice + 2]          * exponent) + m_color_scale[choice + 8]; //blue
   }
   update_texture(pixels);
 }
 
 void Lyapunov::generate_sequence()
 {
-  string sequence;
   bool error = false;
   for (char i : m_sequence)
   {
@@ -120,19 +107,12 @@ void Lyapunov::generate_sequence()
   }
   if (m_sequence.empty() || error)
   {
-    cout  << "An error in the construction of the sequence has been detected. \
-              Sequence must contains only A and B. Default Sequence : AB" 
-          << endl;
-    int length_sequence = rand() % m_precision;
-    int char_rand;
     m_sequence = "";
-    for (int i = 0; i < length_sequence; ++i)
-    {
-      char_rand = rand() % 2;
-      m_sequence += "Sequence : " << m_sequence << endl;
-    }
+    for (int i = 0, size = rand() % m_precision; i < size; ++i)
+      m_sequence += (rand() % 2 == 0 ? "A" : "B");
+    cout << "Случайная последовательность: " << m_sequence << endl;
   }
-  sequence = m_sequence;
+  string sequence = m_sequence;
   while((int)m_sequence.length() < m_precision)
     m_sequence += sequence;
 }
@@ -141,38 +121,41 @@ void Lyapunov::generate(Region region)
 {
   if (region.get_from_x() < 0 || region.get_to_x() > 4 || region.get_from_y() < 0 || region.get_to_y() > 4)
   {
-    double fx = region.get_from_x();
-    double tx = region.get_to_x();
-    double fy = region.get_from_y();
-    double ty = region.get_to_y();
-    double length =  tx - fx;
-    if (fx < 0)
+    double x1 = region.get_from_x();
+    double x2 = region.get_to_x();
+    double y1 = region.get_from_y();
+    double y2 = region.get_to_y();
+    double length =  x2 - x1;
+    if (x1 < 0)
     {
-      fx = 0;
-      tx = length;
+      x1 = 0;
+      x2 = length;
     }
-    else if(tx > 4)
+    else if (x2 > 4)
     {
-      tx = 4;
-      fx = 4 - length;
+      x2 = 4;
+      x1 = 4 - length;
     }
-    if (fy < 0)
+    if (y1 < 0)
     {
-      fy = 0;
-      ty = 0 + length;
+      y1 = 0;
+      y2 = length;
     }
-    else if (ty > 4)
+    else if (y2 > 4)
     {
-      ty = 4;
-      fy = 4 - length;
+      y2 = 4;
+      y1 = 4 - length;
     }
-    m_current_region = Region(fx, tx, fy, ty);
+    m_current_region = Region(x1, x2, y1, y2);
   }
   else
     m_current_region = region;
 
   if (m_sequence.empty())
     generate_sequence();
+
+  m_min_expo = 0;
+  m_max_expo = 0;
 
   uint nb_thread = thread::hardware_concurrency();
   vector<thread> threads(nb_thread);
@@ -193,23 +176,21 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
   int width  = m_size.w;
   int height = m_size.h;
 
-  int x, y, y_pos, index, i, j;
+  int x, y, y_pos, index, i;
   double a, b, exp_lyap, xn, rn;
-
-  min_expo = 0;
-  max_expo = 0;
 
   double a_start = m_current_region.get_from_x();
   double b_start = m_current_region.get_from_y();
   double scale_a = ((m_current_region.get_to_x() - a_start) / (double)width);
   double scale_b = ((m_current_region.get_to_y() - b_start) / (double)height);
   double expo = 1e100;
+  double max = 1e100;
   for (y = y_start; y < y_end; ++y)
   {
     y_pos = y * width;
     for (x = x_start; x < x_end; ++x)
     {
-      int i = 0;
+      i = 0;
       index = y_pos + x;
       a = a_start + x * scale_a;
       b = b_start + y * scale_b;
@@ -223,21 +204,22 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
           rn = m_sequence[i] == 'A' ? a : b;
           xn = rn * xn * (1 - xn);
           expo *= (fabs(rn * (1 - 2 * xn)));
-          ++i;
-          if (i >= m_precision)
+          if (++i >= m_precision)
             break;
         }
       }
       exp_lyap += log2(expo);
     }
     exp_lyap /= m_precision;
-    if (exp_lyap < - 30)
-      exp_lyap = min_expo;
-    else if (exp_lyap > 30)
-      exp_lyap = max_expo;
+    if (exp_lyap < - 10)
+      exp_lyap = m_min_expo;
+    else if (exp_lyap > 10)
+      exp_lyap = m_max_expo;
     m_exponents[index] = exp_lyap;
-    min_expo = (exp_lyap < min_expo) ? exp_lyap : min_expo;
-    max_expo = (exp_lyap > max_expo) ? exp_lyap : max_expo;
+    if(exp_lyap < m_min_expo)
+      m_min_expo = exp_lyap;
+    if(exp_lyap > m_max_expo)
+      m_max_expo = exp_lyap;
   }
 }
 
@@ -290,9 +272,6 @@ void Lyapunov::on_mouse_move()
   draw_zoom();
 }
 
-void Lyapunov::start_loop()
-{ event_loop(); }
-
 void Lyapunov::on_mouse_wheel(int amount)
 {
   int max = (int) (get_texture_position().w * (3 / 4.0));
@@ -310,33 +289,41 @@ void Lyapunov::on_keyboard_down(int c)
   {
     case SDLK_RIGHT:
     {
-      double distance = (m_current_region.get_to_x() - m_current_region.get_from_x()) / 2;
-      m_current_region = {m_current_region.get_from_x() + distance, m_current_region.get_to_x() + distance,
-                          m_current_region.get_from_y(), m_current_region.get_to_y()};
+      double distance  = (m_current_region.get_to_x() - m_current_region.get_from_x()) / 2;
+      m_current_region = {m_current_region.get_from_x() + distance,
+                          m_current_region.get_to_x() + distance,
+                          m_current_region.get_from_y(),
+                          m_current_region.get_to_y()};
       generate(m_current_region);
     }
       break;
     case SDLK_LEFT:
     {
-      double distance = (m_current_region.get_to_x() - m_current_region.get_from_x()) / ( - 2 );
-      m_current_region = {m_current_region.get_from_x() + distance, m_current_region.get_to_x() + distance,
-                          m_current_region.get_from_y(), m_current_region.get_to_y()};
+      double distance  = (m_current_region.get_to_x() - m_current_region.get_from_x()) / ( - 2 );
+      m_current_region = {m_current_region.get_from_x() - distance,
+                          m_current_region.get_to_x() - distance,
+                          m_current_region.get_from_y(),
+                          m_current_region.get_to_y()};
       generate(m_current_region);
     }
       break;
     case SDLK_DOWN:
     {
       double distance= (m_current_region.get_to_y() - m_current_region.get_from_y()) / 2;
-      m_current_region = {m_current_region.get_from_x(), m_current_region.get_to_x(),
-                          m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
+      m_current_region = {m_current_region.get_from_x(),
+                          m_current_region.get_to_x(),
+                          m_current_region.get_from_y() + distance,
+                          m_current_region.get_to_y() + distance};
       generate(m_current_region);
     }
       break;
     case SDLK_UP:
     {
       double distance = (m_current_region.get_to_y() - m_current_region.get_from_y()) / ( - 2);
-      m_current_region = {m_current_region.get_from_x(), m_current_region.get_to_x(),
-                          m_current_region.get_from_y() + distance, m_current_region.get_to_y() + distance};
+      m_current_region = {m_current_region.get_from_x(),
+                          m_current_region.get_to_x(),
+                          m_current_region.get_from_y() - distance,
+                          m_current_region.get_to_y() - distance};
       generate(m_current_region);
     }
       break;
@@ -370,6 +357,10 @@ void Lyapunov::on_keyboard_down(int c)
   blit_texture();
   update_screen();
 }
+
+
+void Lyapunov::start_loop()
+{ event_loop(); }
 
 void Lyapunov::draw_zoom()
 {
@@ -406,7 +397,7 @@ int main(int argc, char* argv[])
   Gtk::Main app(argc, argv);
   Menu m = Menu();
   Gtk::Main::run(m);
-  Lyapunov lyapunov(1000, 1000);
+  Lyapunov lyapunov;
   lyapunov.generate();
   lyapunov.start_loop();
   return 0;

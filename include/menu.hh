@@ -9,6 +9,9 @@
 #include <vector>
 #include <fstream>
 
+const int MINSPIN = 10;
+const int MAXSPIN = 100;
+
 using std::string;
 using std::cout;
 using std::endl;
@@ -16,13 +19,11 @@ using std::ofstream;
 using std::ifstream;
 using std::stringstream;
 
-const int MINSPIN = 10;
-const int MAXSPIN = 10000;
-
 class Menu: public Gtk::Window
 {
   private:
     Gtk::Entry sequence;
+    int precision;
     Gdk::RGBA m_color[4];
     Gtk::Button menu_write;
     Gtk::AccelLabel label_expo_neg_e;
@@ -37,10 +38,9 @@ class Menu: public Gtk::Window
     Gtk::ColorButton m_color_button_pos_e;
     Gtk::SpinButton m_select_precision;
     Gtk::Grid grid;
-    int precision;
 
   public:
-    Menu(int precision);
+    Menu(int precision = 100);
     void set_color_max_neg_expo();
     void set_color_min_neg_expo();
     void set_color_min_pos_expo();

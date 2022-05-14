@@ -63,12 +63,12 @@ Menu::Menu(int precision): menu_write()
   m_color_button_pos_s.signal_color_set().connect(sigc::mem_fun(*this, &Menu::set_color_min_pos_expo));
   m_color_button_pos_e.signal_color_set().connect(sigc::mem_fun(*this, &Menu::set_color_max_pos_expo));
 
-  Glib::RefPtr<Gtk::Adjustment> limits = Gtk::Adjustment::create(precision, MINSPIN, MAXSPIN, 1);
   label_precision = Gtk::AccelLabel("Точность");
+  label_precision.set_xalign(0.1);
+  Glib::RefPtr<Gtk::Adjustment> limits = Gtk::Adjustment::create(precision, MINSPIN, MAXSPIN, 1);
   m_select_precision.set_adjustment(limits);
   m_select_precision.set_numeric();
   m_select_precision.signal_value_changed().connect(sigc::mem_fun(*this, &Menu::new_precision));
-  label_precision.set_xalign(0.1);
   grid.attach(m_select_precision, 4, 4, 6, 1);
   grid.attach(label_precision, 0, 4, 4, 1);
 
@@ -76,11 +76,11 @@ Menu::Menu(int precision): menu_write()
   sequence.set_activates_default(false);
   label_sequence = Gtk::AccelLabel("Последовательность А-В");
   label_sequence.set_xalign(0.195);
+  Menu::text_area();
   grid.attach(label_sequence, 0, 5, 4, 1);
   menu_write.signal_clicked().connect(sigc::mem_fun(*this, &Menu::validate));
   menu_write.set_label("Подтверждение");
   grid.attach(menu_write, 8, 6, 2, 1);
-  Menu::text_area();
   grid.show_all();
   add(grid);
 }
@@ -104,8 +104,8 @@ void Menu::set_color_button()
     m_color[i].set_rgba(r / 255.0, g / 255.0, b / 255.0);
     i++;
   }
-  m_color_button_neg_s.set_rgba(m_color[0]);
-  m_color_button_neg_e.set_rgba(m_color[1]);
+  m_color_button_neg_e.set_rgba(m_color[0]);
+  m_color_button_neg_s.set_rgba(m_color[1]);
   m_color_button_pos_s.set_rgba(m_color[2]);
   m_color_button_pos_e.set_rgba(m_color[3]);
 }
@@ -142,13 +142,13 @@ void Menu::new_precision()
 
 string Menu::color_to_string(Gdk::RGBA color)
 {
-  stringstream convertRed;
-  stringstream convertGreen;
-  stringstream convertBlue;
-  convertRed    << (int)(color.get_red()    * 255);
-  convertGreen  << (int)(color.get_green()  * 255);
-  convertBlue   << (int)(color.get_blue()   * 255);
-  string str = convertRed.str() + " " + convertGreen.str() + " " + convertBlue.str();
+  stringstream convert_red;
+  stringstream convert_green;
+  stringstream convert_blue;
+  convert_red    << (int)(color.get_red()    * 255);
+  convert_green  << (int)(color.get_green()  * 255);
+  convert_blue   << (int)(color.get_blue()   * 255);
+  string str = convert_red.str() + " " + convert_green.str() + " " + convert_blue.str();
   return str;
 }
 
@@ -164,7 +164,7 @@ void Menu::get_precision(ofstream& file)
 {
   stringstream precise;
   precise << m_select_precision.get_value();
-  file << "precision= "+ precise.str()<< endl;
+  file << "precision= " + precise.str() << endl;
 }
 
 void Menu::write_file()

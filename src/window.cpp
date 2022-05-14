@@ -6,7 +6,6 @@ ostream& operator << (ostream& flow, SDL_Rect rect)
   return flow;
 }
 
-
 WindowManager::WindowManager(): m_quit{false}, 
                                 m_window{nullptr}, m_renderer{nullptr},
                                 m_texture{nullptr}, m_texture_position{}, m_pitch{}, m_mouse_position{}
@@ -14,14 +13,14 @@ WindowManager::WindowManager(): m_quit{false},
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
     throw runtime_error(SDL_GetError());
   m_window = SDL_CreateWindow("Lyapunov Fractals", SDL_WINDOWPOS_UNDEFINED, 
-                              SDL_WINDOWPOS_UNDEFINED, 500, 500, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
+                              SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
   if (m_window == nullptr)
     throw runtime_error(SDL_GetError());
 }
 
 void WindowManager::init_render(SDL_Rect size)
 {
-  m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
+  m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   if(m_renderer == nullptr)
     throw runtime_error(SDL_GetError());
   m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, size.w, size.h);
@@ -96,16 +95,15 @@ const SDL_Rect& WindowManager::get_texture_position() const
 void WindowManager::set_texture_position(SDL_Rect texture_position)
 { m_texture_position = texture_position; }
 
-WindowManager::~WindowManager()
-{
-  SDL_DestroyTexture(m_texture);
-  SDL_DestroyRenderer(m_renderer);
-  SDL_DestroyWindow(m_window);
-  SDL_Quit();
-}
-
 const SDL_Rect& WindowManager::get_mouse_position() const
 { return m_mouse_position; }
+
+int WindowManager::get_max_size() const
+{
+  SDL_DisplayMode display;
+  SDL_GetCurrentDisplayMode(0, &display);
+  return display.w < display.h ? display.w : display.h;
+}
 
 void WindowManager::screen_shot() const
 {
@@ -117,4 +115,12 @@ void WindowManager::screen_shot() const
   SDL_RenderReadPixels(m_renderer, &m_texture_position, screen_shot->format->format, screen_shot->pixels, screen_shot->pitch);
   SDL_SaveBMP(screen_shot, file_name.data());
   SDL_FreeSurface(screen_shot);
+}
+
+WindowManager::~WindowManager()
+{
+  SDL_DestroyTexture(m_texture);
+  SDL_DestroyRenderer(m_renderer);
+  SDL_DestroyWindow(m_window);
+  SDL_Quit();
 }

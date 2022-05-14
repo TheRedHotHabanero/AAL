@@ -24,7 +24,6 @@ class Region
     double get_to_x() const;
     double get_from_y() const;
     double get_to_y() const;
-    void rotate(int degree, double length);
 };
 
 
