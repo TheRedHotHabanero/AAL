@@ -319,7 +319,7 @@ void Lyapunov::on_keyboard_down(int c)
       break;
     case SDLK_UP:
     {
-      double distance = (m_current_region.get_to_y() - m_current_region.get_from_y()) / ( - 2);
+      double distance = (m_current_region.get_to_y() - m_current_region.get_from_y()) / 2;
       m_current_region = {m_current_region.get_from_x(),
                           m_current_region.get_to_x(),
                           m_current_region.get_from_y() - distance,
@@ -400,5 +400,5 @@ int main(int argc, char* argv[])
   Lyapunov lyapunov;
   lyapunov.generate();
   lyapunov.start_loop();
-  return 0;
+  return EXIT_SUCCESS;
 }

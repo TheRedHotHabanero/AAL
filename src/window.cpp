@@ -8,7 +8,8 @@ ostream& operator << (ostream& flow, SDL_Rect rect)
 
 WindowManager::WindowManager(): m_quit{false}, 
                                 m_window{nullptr}, m_renderer{nullptr},
-                                m_texture{nullptr}, m_texture_position{}, m_pitch{}, m_mouse_position{}
+                                m_texture{nullptr}, m_texture_position{},
+                                m_pitch{}, m_mouse_position{}
 {
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
     throw runtime_error(SDL_GetError());

@@ -1,7 +1,6 @@
 #ifndef __INCLUDE_TIME_HH__
 #define __INCLUDE_TIME_HH__
 
-#include <iostream>
 #include <chrono>
 #include <string>
 

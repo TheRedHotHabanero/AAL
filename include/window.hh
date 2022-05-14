@@ -48,6 +48,6 @@ class WindowManager
     void set_texture_position(SDL_Rect texture_position);
 };
 
-ostream& operator << (ostream& flow, SDL_Rect rect);
+ostream& operator<< (ostream& flow, SDL_Rect rect);
 
 #endif // __SRC_WINDOW_HH__
