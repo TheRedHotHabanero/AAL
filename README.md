@@ -1,1 +1,2 @@
 Project on theoretical mechanics, Lyapunov's theory of stability.
+Lyapunov fractals. You can see the description and report on the [link](https://github.com/TheRedHotHabanero/AAL/blob/main/tex/main.pdf)
