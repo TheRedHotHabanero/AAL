@@ -1,5 +1,5 @@
-#ifndef __SRC_MENU_HH__
-#define __SRC_MENU_HH__
+#ifndef __INCLUDE_MENU_MENU_HH__
+#define __INCLUDE_MENU_MENU_HH__
 
 #include <gtkmm.h>
 #include <gdk/gdk.h>
@@ -10,26 +10,27 @@
 #include <fstream>
 
 const int MINSPIN = 10;
-const int MAXSPIN = 100;
+const int MAXSPIN = 10000;
 
 using std::string;
-using std::cout;
-using std::endl;
 using std::ofstream;
-using std::ifstream;
+using std::cout;
 using std::stringstream;
+using std::ifstream;
+using std::endl;
 
-class Menu: public Gtk::Window
+class Menu : public Gtk::Window
 {
   private:
+
     Gtk::Entry sequence;
     int precision;
     Gdk::RGBA m_color[4];
     Gtk::Button menu_write;
-    Gtk::AccelLabel label_expo_neg_e;
-    Gtk::AccelLabel label_expo_neg_s;
-    Gtk::AccelLabel label_expo_pos_s;
-    Gtk::AccelLabel label_expo_pos_e;
+    Gtk::AccelLabel label_expoNegE;
+    Gtk::AccelLabel label_expoNegS;
+    Gtk::AccelLabel label_expoPosS;
+    Gtk::AccelLabel label_expoPosE;
     Gtk::AccelLabel label_precision;
     Gtk::AccelLabel label_sequence;
     Gtk::ColorButton m_color_button_neg_e;
@@ -39,7 +40,8 @@ class Menu: public Gtk::Window
     Gtk::SpinButton m_select_precision;
     Gtk::Grid grid;
 
-  public:
+  public :
+
     Menu(int precision = 100);
     void set_color_max_neg_expo();
     void set_color_min_neg_expo();
@@ -56,4 +58,4 @@ class Menu: public Gtk::Window
     void validate();
 };
 
-#endif // __SRC_MENU_HH__
+#endif // __INCLUDE_MENU_MENU_HH__

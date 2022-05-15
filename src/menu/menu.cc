@@ -1,10 +1,9 @@
-#include "../include/menu.hh"
+#include "menu.hh"
 
-Menu::Menu(int precision): menu_write()
+Menu::Menu(int precision) : menu_write()
 {
   Menu::set_position(Gtk::WIN_POS_CENTER);
   Menu::resize(450, 300);
-
   grid.set_row_homogeneous(true);
   grid.set_column_homogeneous(true);
   grid.set_column_spacing(0);
@@ -16,47 +15,42 @@ Menu::Menu(int precision): menu_write()
   m_color[3].set_rgba(0, 0.11, 0.337);
 
   Menu::set_title("Параметры генерации фракталов Ляпунова");
-
   m_color_button_neg_e.set_rgba(m_color[0]);
   m_color_button_neg_s.set_rgba(m_color[1]);
   m_color_button_pos_s.set_rgba(m_color[2]);
   m_color_button_pos_e.set_rgba(m_color[3]);
 
-  // min neg
-  label_expo_neg_e = Gtk::AccelLabel("Минимальный отрицательный терминал");
-  label_expo_neg_e.set_xalign(0.4);
+  label_expoNegE = Gtk::AccelLabel("Минимальный отрицательный терминал");
+  label_expoNegE.set_xalign(0.4);
   m_color_button_neg_e.set_can_focus(false);
   m_color_button_neg_e.set_alignment(0.1, 0.5);
   m_color_button_neg_e.set_title("Цветовая экспонента Ляпунова отрицательная далеко от 0");
   grid.attach(m_color_button_neg_e, 4, 0, 6, 1);
-  grid.attach(label_expo_neg_e, 0, 0, 4, 1);
+  grid.attach(label_expoNegE, 0, 0, 4, 1);
 
-  // max neg
-  label_expo_neg_s = Gtk::AccelLabel("Максимальный отрицательный терминал");
-  label_expo_neg_s.set_xalign(0.409);
+  label_expoNegS = Gtk::AccelLabel("Максимальный отрицательный терминал");
+  label_expoNegS.set_xalign(0.409);
   m_color_button_neg_s.set_can_focus(false);
   m_color_button_neg_s.set_alignment(0.1, 0.5);
-  m_color_button_neg_s.set_title("Цветовая экспонента Ляпунова отрицательная близка к 0");
+  m_color_button_neg_s.set_title("Цветовая экспонента Ляпунова отрицательная близкая к 0");
   grid.attach(m_color_button_neg_s, 4, 1, 6, 1);
-  grid.attach(label_expo_neg_s, 0, 1, 4, 1);
+  grid.attach(label_expoNegS, 0, 1, 4, 1);
 
-  // min pos
-  label_expo_pos_s = Gtk::AccelLabel("Минимальный положительный терминал");
-  label_expo_pos_s.set_xalign(0.395);
+  label_expoPosS = Gtk::AccelLabel("Минимальный положительный терминал");
+  label_expoPosS.set_xalign(0.395);
   m_color_button_pos_s.set_can_focus(false);
   m_color_button_pos_s.set_alignment(0.1, 0.5);
-  m_color_button_pos_s.set_title("Цветовая экспонента Ляпунова положительная близка к 0");
+  m_color_button_pos_s.set_title("Цветовая экспонента Ляпунова положительная близкая к 0");
   grid.attach(m_color_button_pos_s, 4, 2, 6, 1);
-  grid.attach(label_expo_pos_s, 0, 2, 4, 1);
+  grid.attach(label_expoPosS, 0, 2, 4, 1);
 
-  // max pos
-  label_expo_pos_e = Gtk::AccelLabel("Максимальный положительный терминал");
-  label_expo_pos_e.set_xalign(0.4);
+  label_expoPosE = Gtk::AccelLabel("Положительный максимальный терминал");
+  label_expoPosE.set_xalign(0.4);
   m_color_button_pos_e.set_can_focus(false);
   m_color_button_pos_e.set_alignment(0.1, 0.5);
-  m_color_button_pos_e.set_title("Цветовая экспонента Ляпунова положительная далека от 0:");
+  m_color_button_pos_e.set_title("Цветовая экспонента Ляпунова положительная далеко от 0");
   grid.attach(m_color_button_pos_e, 4, 3, 6, 1);
-  grid.attach(label_expo_pos_e, 0, 3, 4, 1);
+  grid.attach(label_expoPosE, 0, 3, 4, 1);
 
   m_color_button_neg_e.signal_color_set().connect(sigc::mem_fun(*this, &Menu::set_color_min_neg_expo));
   m_color_button_neg_s.signal_color_set().connect(sigc::mem_fun(*this, &Menu::set_color_max_neg_expo));
@@ -65,7 +59,7 @@ Menu::Menu(int precision): menu_write()
 
   label_precision = Gtk::AccelLabel("Точность");
   label_precision.set_xalign(0.1);
-  Glib::RefPtr<Gtk::Adjustment> limits = Gtk::Adjustment::create(precision, MINSPIN, MAXSPIN, 1);
+  Glib::RefPtr <Gtk::Adjustment> limits = Gtk::Adjustment::create(precision, MINSPIN, MAXSPIN, 1);
   m_select_precision.set_adjustment(limits);
   m_select_precision.set_numeric();
   m_select_precision.signal_value_changed().connect(sigc::mem_fun(*this, &Menu::new_precision));
@@ -74,7 +68,7 @@ Menu::Menu(int precision): menu_write()
 
   precision = m_select_precision.get_value_as_int();
   sequence.set_activates_default(false);
-  label_sequence = Gtk::AccelLabel("Последовательность А-В");
+  label_sequence = Gtk::AccelLabel("Последовательность A-B");
   label_sequence.set_xalign(0.195);
   Menu::text_area();
   grid.attach(label_sequence, 0, 5, 4, 1);
@@ -95,10 +89,7 @@ void Menu::set_color_button()
 {
   ifstream file("config.txt");
   string str;
-  int r;
-  int g;
-  int b;
-  int i = 0;
+  int r, g, b, i = 0;
   while(i < 4 && file >> str >> r >> g >> b)
   {
     m_color[i].set_rgba(r / 255.0, g / 255.0, b / 255.0);
@@ -125,13 +116,13 @@ void Menu::set_color_max_pos_expo()
 void Menu::text_area()
 {
   sequence.set_activates_default(false);
-  sequence.set_placeholder_text("Введите желаемую последовательность A и B");
+  sequence.set_placeholder_text("Введите последовательность A-B");
   sequence.set_max_length(precision);
   sequence.set_alignment(Gtk::ALIGN_CENTER);
   grid.attach(sequence, 4, 5, 6, 1);
 }
 
-void Menu::get_sequence(ofstream& file)
+void Menu::get_sequence(std::ofstream& file)
 {
   string seq = sequence.get_text();
   file << "sequence= " + seq;
@@ -145,34 +136,34 @@ string Menu::color_to_string(Gdk::RGBA color)
   stringstream convert_red;
   stringstream convert_green;
   stringstream convert_blue;
-  convert_red    << (int)(color.get_red()    * 255);
-  convert_green  << (int)(color.get_green()  * 255);
-  convert_blue   << (int)(color.get_blue()   * 255);
+  convert_red << (int) (color.get_red() * 255);
+  convert_green << (int) (color.get_green() * 255);
+  convert_blue << (int) (color.get_blue() * 255);
   string str = convert_red.str() + " " + convert_green.str() + " " + convert_blue.str();
   return str;
 }
 
-void Menu::get_color(ofstream& file)
+void Menu::get_color(std::ofstream& file)
 {
-  file << "color_neg_+= "+ color_to_string(m_color[0]) << endl;
-  file << "color_neg_-= "+ color_to_string(m_color[1]) << endl;
-  file << "color_pos_-= "+ color_to_string(m_color[2]) << endl;
-  file << "color_pos_+= "+ color_to_string(m_color[3]) << endl;
+  file << "color_neg_+= " + color_to_string(m_color[0]) << std::endl;
+  file << "color_neg_-= " + color_to_string(m_color[1]) << std::endl;
+  file << "color_pos_-= " + color_to_string(m_color[2]) << std::endl;
+  file << "color_pos_+= " + color_to_string(m_color[3]) << std::endl;
 }
 
 void Menu::get_precision(ofstream& file)
 {
   stringstream precise;
-  precise << m_select_precision.get_value();
+  precise<< m_select_precision.get_value();
   file << "precision= " + precise.str() << endl;
 }
 
 void Menu::write_file()
 {
   ofstream file("config.txt");
-  if (!file.is_open())
+  if(!file.is_open())
   {
-    cout << "Error : Cannot open file config " << endl;
+    cout << "Error : Cannot open file config " << std::endl;
     return;
   }
   get_color(file);

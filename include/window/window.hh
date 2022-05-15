@@ -1,24 +1,24 @@
-#ifndef __SRC_WINDOW_HH__
-#define __SRC_WINDOW_HH__
+#ifndef __INCLUDE_WINDOW_WINDOWMANAGER_HH__
+#define __INCLUDE_WINDOW_WINDOWMANAGER_HH__
 
 #include <SDL2/SDL.h>
 #include <exception>
 #include <iostream>
-#include <fstream>
 #include <vector>
-#include "time.hh"
+#include <iostream>
+#include <fstream>
+#include "time/time.hh"
 
-using std::vector;
+using std::ostream;
+using std::runtime_error;
 using std::string;
 using std::to_string;
-using std::runtime_error;
-using std::ostream;
-using std::cout;
-using std::endl;
+using std::vector;
 
 class WindowManager
 {
   private:
+
     bool m_quit;
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
@@ -28,14 +28,13 @@ class WindowManager
     SDL_Rect m_mouse_position;
 
   public:
+
     WindowManager();
-    ~WindowManager();
     void init_render(SDL_Rect size);
     void draw_rect(int x, int y, int w, int h);
     void update_texture(vector<Uint32>& pixels) const;
     void blit_texture() const;
     void update_screen() const;
-    void screen_shot() const;
     const SDL_Rect& get_mouse_position() const;
     int get_max_size() const;
     virtual void on_resized(uint new_width, uint new_height) = 0;
@@ -46,8 +45,9 @@ class WindowManager
     void event_loop();
     const SDL_Rect& get_texture_position() const;
     void set_texture_position(SDL_Rect texture_position);
+    ~WindowManager();
 };
 
-ostream& operator<< (ostream& flow, SDL_Rect rect);
+ostream& operator<<(ostream& flux, SDL_Rect rect);
 
-#endif // __SRC_WINDOW_HH__
+#endif // __INCLUDE_WINDOW_WINDOWMANAGER_HH__

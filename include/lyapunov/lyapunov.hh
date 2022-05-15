@@ -1,39 +1,30 @@
-#ifndef __INCLUDE_LYAPUNOV_HH__
-#define __INCLUDE_LYAPUNOV_HH__
+#ifndef __INCLUDE_LYAPUNOV_LYAPUNOV_HH__
+#define __INCLUDE_LYAPUNOV_LYAPUNOV_HH__
 
-#include <iostream>
-#include <cmath>
-#include <ctime>
-#include <cstdlib>
-#include <string>
-#include <fstream>
+#include <SDL2/SDL_quit.h>
 #include <vector>
 #include <array>
-#include <ctime>
-#include <stack>
+#include <string>
 #include <thread>
-#include <SDL2/SDL_quit.h>
-#include "window.hh"
-#include "time.hh"
-#include "region.hh"
-#include "menu.hh"
+#include <cmath>
+#include <cstdlib>
+#include <stack>
+#include "window/window.hh"
+#include "time/time.hh"
+#include "region/region.hh"
+#include "menu/menu.hh"
 
-constexpr int X0 = 0.5;
+const double X0 = 0.5;
 
-using std::cin;
+using std::vector;
+using std::string;
 using std::cout;
 using std::endl;
-using std::stack;
-using std::array;
 using std::thread;
-using std::string;
-using std::vector;
-using std::ofstream;
+using std::stack;
 using std::ifstream;
-using std::to_string;
-using std::domain_error;
 
-class Lyapunov: WindowManager
+class Lyapunov : WindowManager
 {
   private:
     vector<double> m_exponents;
@@ -58,7 +49,7 @@ class Lyapunov: WindowManager
     void set_color_scale(int tab, int max, int min);
     void draw_zoom();
     void validate_region(int& x, int& y, int& w, int& h);
-    void update_pixels() const;
+    void update_pixels() const ;
     void update_settings();
     void on_resized(uint new_width, uint new_height) override;
     void on_mouse_click(int mouse_x, int mouse_y, int button) override;
@@ -68,4 +59,4 @@ class Lyapunov: WindowManager
     void start_loop();
 };
 
-#endif // __INCLUDE_LYAPUNOV_HH__
+#endif // __INCLUDE_LYAPUNOV_LYAPUNOV_HH__
