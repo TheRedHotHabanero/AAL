@@ -66,15 +66,11 @@
 	  - Debian-based (Debian, Ubuntu, \ldots)
 	  \begin{lstlisting}
 	  	$ sudo apt-get install libsdl2-dev 
-	  \end{lstlisting}
-	  \begin{lstlisting}
 	  	$ sudo apt-get install libgtkmm-3.0-dev 
 	  \end{lstlisting}
 	  - RedHat-like (Fedora, CentOS, \ldots)
 	  \begin{lstlisting}
 	  	$ sudo yum install libsdl2-dev 
-	  \end{lstlisting}
-	  \begin{lstlisting}
 	  	$ sudo yum install libgtkmm-3.0-dev 
 	  \end{lstlisting}
 
@@ -84,19 +80,22 @@
   \subsection{Компиляция и запуск}
     \noindent Заходим в папку ляпунов
 	  \begin{lstlisting}
-	  	$ cd AAL/ 
+	  	$ cd AAL/
 	  \end{lstlisting}
-	  Запустите команду для компиляции:
+	  Запустите команды для сборки:
 	  \begin{lstlisting}
-	  	$ make 
-	  \end{lstlisting}
+	  	$ mkdir build
+	  	$ cd build
+	  	$ cmake ..
+	  	$ make
+    \end{lstlisting}
 	  Запустите команду для запуска исполняемого файла:
 	  \begin{lstlisting}
-	  	$ ./AAL 
+	  	$ ./AAL
 	  \end{lstlisting}
 
 \section{Презентация программы}
-  
+
   \subsection{Меню}
 
   При запуске программы отображается меню для выбора цветов, представляющих значения показателей Ляпунова
