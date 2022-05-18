@@ -1,6 +1,6 @@
 #include "window.hh"
 
-ostream& operator<<(std::ostream& flow, SDL_Rect rect)
+ostream& operator<<(ostream& flow, SDL_Rect rect)
 {
   flow << "x=" << rect.x << ", y=" << rect.y << ", w=" << rect.w << ", h=" << rect.h << " ";
   return flow;
@@ -48,11 +48,11 @@ void WindowManager::update_screen() const
 void WindowManager::event_loop()
 {
   SDL_Event event;
-  while(!m_quit)
+  while (!m_quit)
   {
-    while(SDL_PollEvent(&event))
+    while (SDL_PollEvent(&event))
     {
-      switch(event.type)
+      switch (event.type)
       {
         case SDL_MOUSEBUTTONUP:
           on_mouse_click(event.button.x, event.button.y, event.button.button);

@@ -136,14 +136,14 @@ string Menu::color_to_string(Gdk::RGBA color)
   stringstream convert_red;
   stringstream convert_green;
   stringstream convert_blue;
-  convert_red << (int) (color.get_red() * 255);
+  convert_red   << (int) (color.get_red()   * 255);
   convert_green << (int) (color.get_green() * 255);
-  convert_blue << (int) (color.get_blue() * 255);
+  convert_blue  << (int) (color.get_blue()  * 255);
   string str = convert_red.str() + " " + convert_green.str() + " " + convert_blue.str();
   return str;
 }
 
-void Menu::get_color(std::ofstream& file)
+void Menu::get_color(ofstream& file)
 {
   file << "color_neg_+= " + color_to_string(m_color[0]) << std::endl;
   file << "color_neg_-= " + color_to_string(m_color[1]) << std::endl;
@@ -161,7 +161,7 @@ void Menu::get_precision(ofstream& file)
 void Menu::write_file()
 {
   ofstream file("config.txt");
-  if(!file.is_open())
+  if (!file.is_open())
   {
     cout << "Error : Cannot open file config " << std::endl;
     return;

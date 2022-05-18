@@ -52,8 +52,8 @@ Region Lyapunov::get_region(int from_x, int to_x, int from_y, int to_y) const
 
 void Lyapunov::set_color_scale(int tab, int max, int min)
 {
-  int curr_max;
-  int curr_min;
+  int curr_max = 0;
+  int curr_min = 0;
   for (int i = 2; i >= 0; --i)
   {
     curr_max = max % 256;
@@ -86,8 +86,8 @@ void Lyapunov::update_pixels() const
     }
     exponent /= divider;
     pixels[i] = (((uint) (m_color_scale[choice]     * exponent) + m_color_scale[choice + 6]) << 16u) + //red
-                (((uint) (m_color_scale[choice + 1] * exponent) + m_color_scale[choice + 7]) << 8u) + //green
-                (m_color_scale[choice + 2]          * exponent) + m_color_scale[choice + 8]; //blue
+                (((uint) (m_color_scale[choice + 1] * exponent) + m_color_scale[choice + 7]) << 8u) +  //green
+                (m_color_scale[choice + 2]          * exponent) + m_color_scale[choice + 8];           //blue
   }
   update_texture(pixels);
 }
@@ -95,15 +95,15 @@ void Lyapunov::update_pixels() const
 void Lyapunov::generate_sequence()
 {
   bool error = false;
-  for(char i : m_sequence)
+  for (char i : m_sequence)
   {
     switch(i)
     {
       case 'A' :
       case 'B' :
-          continue;
+        continue;
       default :
-          error = true;
+        error = true;
     }
     break;
   }
@@ -167,7 +167,7 @@ void Lyapunov::generate(Region region)
                         i * m_size.w / nb_thread, m_size.w,
                         (i + 1) * m_size.h / nb_thread);
   }
-  for(auto& th : threads)
+  for (auto& th : threads)
   { th.join(); }
   update_pixels();
   draw_zoom();
@@ -196,10 +196,10 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
       b = b_start + y * scale_of_b;
       expo_lyap = 0;
       xn = X0;
-      while(i < m_precision)
+      while (i < m_precision)
       {
         expo = 1;
-        while(expo < max)
+        while (expo < max)
         {
           rn = m_sequence[i] == 'A' ? a : b;
           xn = rn * xn * (1 - xn);
@@ -212,7 +212,7 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
       expo_lyap /= m_precision;
       if (expo_lyap < -10)
           expo_lyap = m_min_expo;
-      else if(expo_lyap > 10)
+      else if (expo_lyap > 10)
         expo_lyap = m_max_expo;
       m_exponents[index] = expo_lyap;
       if (expo_lyap < m_min_expo)
@@ -276,9 +276,9 @@ void Lyapunov::on_mouse_wheel(int amount)
 {
   int max = (int) (get_texture_position().w * (3 / 4.0));
   m_zoom_precision += amount * 10;
-  if(m_zoom_precision < 5)
+  if (m_zoom_precision < 5)
     m_zoom_precision = 5;
-  else if(m_zoom_precision > max)
+  else if (m_zoom_precision > max)
     m_zoom_precision = max;
   draw_zoom();
 }

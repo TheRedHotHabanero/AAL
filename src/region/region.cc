@@ -17,9 +17,9 @@ double Region::get_to_y() const
 
 ostream& operator<<(ostream& os, const Region& region)
 {
-  os << "from_x: " << region.get_from_x() 
-     << " to_x: " << region.get_to_x() 
+  os << "from_x: "  << region.get_from_x() 
+     << " to_x: "   << region.get_to_x() 
      << " from_y: " << region.get_from_y() 
-     << " to_y: " << region.get_to_y();
+     << " to_y: "   << region.get_to_y();
   return os;
 }
