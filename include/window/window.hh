@@ -48,6 +48,6 @@ class WindowManager
     ~WindowManager();
 };
 
-ostream& operator<<(ostream& flux, SDL_Rect rect);
+ostream& operator<<(ostream& flow, SDL_Rect rect);
 
 #endif // __INCLUDE_WINDOW_WINDOWMANAGER_HH__

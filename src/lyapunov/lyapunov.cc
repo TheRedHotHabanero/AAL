@@ -185,7 +185,7 @@ void Lyapunov::generate_part(int x_start, int y_start, int x_end, int y_end)
   double scale_of_b = ((m_current_region.get_to_y() - b_start) / (double) height);
   double expo = 1e100;
   double max = 1e100;
-  for(y = y_start; y < y_end; ++y)
+  for (y = y_start; y < y_end; ++y)
   {
     y_pos = y * width;
     for(x = x_start; x < x_end; ++x)
